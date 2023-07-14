@@ -10,8 +10,8 @@ class Bird : public QWidget
 
 public:
     Bird();
-    int x;
-    int y;
+    int birdX;
+    int birdY;
     int speed;
     int flyStatus;
     const int flyPower = 20;

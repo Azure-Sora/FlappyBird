@@ -13,7 +13,7 @@ Pipe::Pipe(int y,positions pos,QWidget *parent) : x(800) , y(y) , position(pos) 
 
 void Pipe::initPosition(int holeWidth, int holePosition)
 {
-    this->x=800;
+    this->x=400;
     switch (this->position) {
     case Pipe::up:
         this->y = 0;
@@ -43,15 +43,8 @@ void Pipe::move()
     }
 }
 
-void Pipe::paintEvent(QPaintEvent *event)
-{
-    QPainter painter(parent);
-
-
-
-}
 
 void Pipe::resetMe()
 {
-    this->x = 800;
+    this->x = 400;
 }

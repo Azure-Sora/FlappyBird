@@ -11,6 +11,7 @@
 #include <QTcpSocket>
 #include <QString>
 #include <QDebug>
+#include <QMouseEvent>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -19,10 +20,14 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    this->setFixedSize(800,800);
+    ui->btnStartGame->installEventFilter(this);
+
     QTimer *timer = new QTimer;
     connect(ui->btnStartGame,&QPushButton::clicked,[=](){
         initGame();
         timer->start(50);
+        ui->btnStartGame->setDisabled(true);
     });
 
     connect(timer,&QTimer::timeout,this,[=](){
@@ -52,8 +57,8 @@ void MainWindow::initGame()
         this->close();
     });
     connect(bird,&Bird::flyStatusChanged,bird,&Bird::flapWing);
-    bird->x=400;
-    bird->y=400;
+    bird->birdX=400;
+    bird->birdY=400;
     bird->speed=0;
     pipeUp = new Pipe(0,Pipe::up,this);
     pipeDown = new Pipe(0,Pipe::down,this);
@@ -65,14 +70,14 @@ void MainWindow::initGame()
 void MainWindow::updateFrame()
 {
     bird->speed += gravity;
-    bird->y += bird->speed;
+    bird->birdY += bird->speed;
     repaint();
 }
 
 void MainWindow::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    painter.translate(bird->x,bird->y);
+    painter.translate(bird->birdX,bird->birdY);
 //    painter.drawEllipse(QPoint(0,0),20,20);
     switch (bird->flyStatus) {
     case 1:
@@ -95,35 +100,6 @@ void MainWindow::paintEvent(QPaintEvent *event)
         painter.drawRect(0,0,pipeDown->width,pipeDown->height);
     }
 
-//    int length;
-//    switch (pipeUp->position) {
-//    case Pipe::up:
-//        length = pipeUp->y;
-//        painter.translate(pipeUp->x,0);
-//        painter.drawRect(0,0,pipeUp->width,length);
-//        break;
-//    case Pipe::down:
-//        length = 800 - pipeUp->y;
-//        painter.translate(pipeUp->x,pipeUp->y);
-//        painter.drawRect(0,0,pipeUp->width,length);
-//    default:
-//        break;
-//    }
-
-//    switch (pipeDown->position) {
-//    case Pipe::up:
-//        length = pipeDown->y;
-//        painter.translate(pipeDown->x,0);
-//        painter.drawRect(0,0,pipeDown->width,length);
-//        break;
-//    case Pipe::down:
-//        length = 800 - pipeDown->y;
-//        painter.translate(pipeDown->x,pipeDown->y);
-//        painter.drawRect(0,0,pipeDown->width,length);
-//    default:
-//        break;
-//    }
-
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -133,6 +109,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         bird->fly();
     }
 
+}
+
+void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::LeftButton)
+    {
+        bird->fly();
+    }
 }
 
 void MainWindow::createPipes()

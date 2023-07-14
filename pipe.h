@@ -24,7 +24,6 @@ public:
 
     void initPosition(int holeWidth, int holePosition);
     void move();
-    void paintEvent(QPaintEvent *event);
     void resetMe();
 
 signals:

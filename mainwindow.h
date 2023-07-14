@@ -28,6 +28,7 @@ public:
     void updateFrame();
     void paintEvent(QPaintEvent *event);
     void keyPressEvent(QKeyEvent * event);
+    void mousePressEvent(QMouseEvent *event);
     void createPipes();
     void initServer();
     void initClient();
