@@ -2,13 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "bird.h"
-#include <QPainter>
-#include <QKeyEvent>
-#include "pipe.h"
-#include <QTcpServer>
-#include <QTcpSocket>
-#include <QLabel>
+#include "gamemainwindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -25,32 +19,18 @@ public:
     QTcpServer *server;
     QTcpSocket *socket;
 
-    void initGame();
-    void updateFrame();
-    void paintEvent(QPaintEvent *event);
-    void keyPressEvent(QKeyEvent * event);
-    void mousePressEvent(QMouseEvent *event);
-    void createPipes();
+    bool isMultiplayer;
+
+    void startAGame();
     void initServer();
     void initClient();
-    void birdMove();
-    void checkCrash();
-    void crashed();
-    void resetPipes();
-
-    const int gravity = 2;
-    int score;
-    bool gameRunning;
-    Pipe *pipeUp;
-    Pipe *pipeDown;
-    QLabel *gameOver;
 
 
 signals:
-    void restartGame();
+
 
 private:
     Ui::MainWindow *ui;
-    Bird *bird;
+
 };
 #endif // MAINWINDOW_H

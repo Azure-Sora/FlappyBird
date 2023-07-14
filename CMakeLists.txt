@@ -21,6 +21,7 @@ set(PROJECT_SOURCES
         bird.h bird.cpp
         pipe.h pipe.cpp
         res.qrc
+        gamemainwindow.h gamemainwindow.cpp gamemainwindow.ui
 
 )
 
