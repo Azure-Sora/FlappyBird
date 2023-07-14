@@ -6,6 +6,8 @@
 #include <QPainter>
 #include <QKeyEvent>
 #include "pipe.h"
+#include <QTcpServer>
+#include <QTcpSocket>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -19,16 +21,22 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    QTcpServer *server;
+    QTcpSocket *socket;
+
     void initGame();
     void updateFrame();
     void paintEvent(QPaintEvent *event);
     void keyPressEvent(QKeyEvent * event);
     void createPipes();
+    void initServer();
+    void initClient();
 
     const int gravity = 1;
     bool gameRunning;
     Pipe *pipeUp;
     Pipe *pipeDown;
+
 
 signals:
     void continueGame();

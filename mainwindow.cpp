@@ -7,6 +7,10 @@
 #include <QRandomGenerator>
 #include "pipe.h"
 #include <QPixmap>
+#include <QTcpServer>
+#include <QTcpSocket>
+#include <QString>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -15,16 +19,18 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    initGame();
-
     QTimer *timer = new QTimer;
-
-    timer->start(50);
+    connect(ui->btnStartGame,&QPushButton::clicked,[=](){
+        initGame();
+        timer->start(50);
+    });
 
     connect(timer,&QTimer::timeout,this,[=](){
         if(gameRunning == false) timer->stop();
         updateFrame();
     });
+
+    connect(ui->btnConnect,&QPushButton::clicked,this,&MainWindow::initClient);
 
 //    QTimer *pipeGenerator = new QTimer;
 //    pipeGenerator->start(1000);
@@ -125,6 +131,40 @@ void MainWindow::createPipes()
     int holeCenter = QRandomGenerator::global()->bounded(300,600);
     pipeUp = new Pipe(holeCenter - holeWidth/2, Pipe::up, this);
     pipeDown = new Pipe(holeCenter + holeWidth/2, Pipe::down, this);
+}
+
+void MainWindow::initServer()
+{
+    server = new QTcpServer(this);
+}
+
+void MainWindow::initClient()
+{
+    socket = new QTcpSocket(this);
+    QString ip = ui->ipEdit->text();
+    int port = ui->portEdit->text().toInt();
+    qDebug() << ip << "\n" << port;
+    socket->connectToHost(ip,port);
+    if(socket->waitForConnected(5000))
+    {
+        ui->connectionStatus->setText("已连接");
+    }
+    else
+    {
+        ui->connectionStatus->setText("连接失败");
+    }
+    connect(socket,&QTcpSocket::readyRead,this,[=](){
+        QByteArray buf = socket->readAll();
+        QString bufStr;
+        bufStr.prepend(buf);
+        qDebug() << bufStr;
+        if(bufStr == "fly")
+        {
+            bird->fly();
+        }
+    });
+
+
 }
 
 
