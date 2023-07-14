@@ -55,8 +55,11 @@ void MainWindow::initGame()
     bird->x=400;
     bird->y=400;
     bird->speed=0;
+    pipeUp = new Pipe(0,Pipe::up,this);
+    pipeDown = new Pipe(0,Pipe::down,this);
+    createPipes();
     gameRunning = true;
-    emit this->continueGame();
+//    emit this->continueGame();
 }
 
 void MainWindow::updateFrame()
@@ -83,6 +86,13 @@ void MainWindow::paintEvent(QPaintEvent *event)
         break;
     default:
         break;
+    }
+    if(gameRunning == true)
+    {
+        painter.translate(pipeUp->x, pipeUp->y);
+        painter.drawRect(0,0,pipeUp->width,pipeUp->height);
+        painter.translate(pipeDown->x, pipeDown->y);
+        painter.drawRect(0,0,pipeDown->width,pipeDown->height);
     }
 
 //    int length;
@@ -127,10 +137,12 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void MainWindow::createPipes()
 {
-    int holeWidth = QRandomGenerator::global()->bounded(200,300);
-    int holeCenter = QRandomGenerator::global()->bounded(300,600);
-    pipeUp = new Pipe(holeCenter - holeWidth/2, Pipe::up, this);
-    pipeDown = new Pipe(holeCenter + holeWidth/2, Pipe::down, this);
+//    int holeWidth = QRandomGenerator::global()->bounded(200,300);
+//    int holeCenter = QRandomGenerator::global()->bounded(300,600);
+    int holeWidth = 200;
+    int holeCenter = 400;
+    pipeUp->initPosition(holeWidth,holeCenter);
+    pipeDown->initPosition(holeWidth,holeCenter);
 }
 
 void MainWindow::initServer()

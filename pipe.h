@@ -18,11 +18,17 @@ public:
     positions position;
     int x;
     int y;
+    int height;
     const int width = 50;
     QWidget *parent;
 
+    void initPosition(int holeWidth, int holePosition);
     void move();
     void paintEvent(QPaintEvent *event);
+    void resetMe();
+
+signals:
+
 };
 
 #endif // PIPE_H
