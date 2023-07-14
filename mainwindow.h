@@ -32,6 +32,7 @@ public:
     void createPipes();
     void initServer();
     void initClient();
+    void birdMove();
 
     const int gravity = 1;
     bool gameRunning;

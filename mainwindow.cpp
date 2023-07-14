@@ -69,35 +69,38 @@ void MainWindow::initGame()
 
 void MainWindow::updateFrame()
 {
-    bird->speed += gravity;
-    bird->birdY += bird->speed;
+    birdMove();
     repaint();
 }
 
 void MainWindow::paintEvent(QPaintEvent *event)
 {
-    QPainter painter(this);
-    painter.translate(bird->birdX,bird->birdY);
+    QPainter birdPainter(this);
+    birdPainter.translate(bird->birdX,bird->birdY);
 //    painter.drawEllipse(QPoint(0,0),20,20);
     switch (bird->flyStatus) {
     case 1:
-        painter.drawPixmap(0,0,40,40,QPixmap(":/res/bird_yellow_down.png"));
+        birdPainter.drawPixmap(0,0,40,40,QPixmap(":/res/bird_yellow_down.png"));
         break;
     case 2:
-        painter.drawPixmap(0,0,40,40,QPixmap(":/res/bird_yellow_middle.png"));
+        birdPainter.drawPixmap(0,0,40,40,QPixmap(":/res/bird_yellow_middle.png"));
         break;
     case 3:
-        painter.drawPixmap(0,0,40,40,QPixmap(":/res/bird_yellow_up.png"));
+        birdPainter.drawPixmap(0,0,40,40,QPixmap(":/res/bird_yellow_up.png"));
         break;
     default:
+        birdPainter.drawPixmap(0,0,40,40,QPixmap(":/res/bird_yellow_up.png"));
         break;
     }
+
     if(gameRunning == true)
     {
-        painter.translate(pipeUp->x, pipeUp->y);
-        painter.drawRect(0,0,pipeUp->width,pipeUp->height);
-        painter.translate(pipeDown->x, pipeDown->y);
-        painter.drawRect(0,0,pipeDown->width,pipeDown->height);
+        QPainter upPipePainter(this);
+        upPipePainter.translate(pipeUp->x, pipeUp->y);
+        upPipePainter.drawRect(0,0,pipeUp->width,pipeUp->height);
+        QPainter downPipePainter(this);
+        downPipePainter.translate(pipeDown->x, pipeDown->y);
+        downPipePainter.drawRect(0,0,pipeDown->width,pipeDown->height);
     }
 
 }
@@ -121,10 +124,10 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
 void MainWindow::createPipes()
 {
-//    int holeWidth = QRandomGenerator::global()->bounded(200,300);
-//    int holeCenter = QRandomGenerator::global()->bounded(300,600);
-    int holeWidth = 200;
-    int holeCenter = 400;
+    int holeWidth = QRandomGenerator::global()->bounded(200,300);
+    int holeCenter = QRandomGenerator::global()->bounded(300,600);
+//    int holeWidth = 200;
+//    int holeCenter = 400;
     pipeUp->initPosition(holeWidth,holeCenter);
     pipeDown->initPosition(holeWidth,holeCenter);
 }
@@ -161,6 +164,21 @@ void MainWindow::initClient()
     });
 
 
+}
+
+void MainWindow::birdMove()
+{
+    if(bird->birdY >= 30)
+    {
+        bird->speed += gravity;
+        bird->birdY += bird->speed;
+    }
+    else
+    {
+        bird->birdY = 30;
+        bird->speed = 1;
+        bird->birdY += bird->speed;
+    }
 }
 
 

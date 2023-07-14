@@ -13,15 +13,15 @@ Pipe::Pipe(int y,positions pos,QWidget *parent) : x(800) , y(y) , position(pos) 
 
 void Pipe::initPosition(int holeWidth, int holePosition)
 {
-    this->x=400;
+    this->x=800;
     switch (this->position) {
     case Pipe::up:
         this->y = 0;
         this->height = holePosition - holeWidth/2;
         break;
     case Pipe::down:
-        this->y = 0;
-        this->height = holePosition + holeWidth/2;
+        this->y = holePosition + holeWidth/2;
+        this->height = 800 - y;
         break;
     default:
         break;
@@ -36,7 +36,7 @@ void Pipe::initPosition(int holeWidth, int holePosition)
 
 void Pipe::move()
 {
-    x -= 3;
+    x -= 10;
     if(x < -50)
     {
         resetMe();
@@ -46,5 +46,5 @@ void Pipe::move()
 
 void Pipe::resetMe()
 {
-    this->x = 400;
+    this->x = 800;
 }
