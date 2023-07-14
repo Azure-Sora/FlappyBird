@@ -4,10 +4,13 @@
 #include <QWidget>
 #include <QPainter>
 #include <QEvent>
+#include "bird.h"
 
 
 class Pipe : public QWidget
 {
+    Q_OBJECT
+
 public:
     enum positions
     {
@@ -24,10 +27,15 @@ public:
 
     void initPosition(int holeWidth, int holePosition);
     void move();
-    void resetMe();
+//    void resetMe();
+    void isCrashed(Bird *bird);
+    void reset(int holeWidth, int holePosition);
+    void isScored();
 
 signals:
-
+    void crashed();
+    void resetMe();
+    void getScore();
 };
 
 #endif // PIPE_H

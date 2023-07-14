@@ -8,6 +8,7 @@
 #include "pipe.h"
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QLabel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -33,15 +34,20 @@ public:
     void initServer();
     void initClient();
     void birdMove();
+    void checkCrash();
+    void crashed();
+    void resetPipes();
 
-    const int gravity = 1;
+    const int gravity = 2;
+    int score;
     bool gameRunning;
     Pipe *pipeUp;
     Pipe *pipeDown;
+    QLabel *gameOver;
 
 
 signals:
-    void continueGame();
+    void restartGame();
 
 private:
     Ui::MainWindow *ui;

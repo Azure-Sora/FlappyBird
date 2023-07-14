@@ -12,6 +12,8 @@
 #include <QString>
 #include <QDebug>
 #include <QMouseEvent>
+#include <QLabel>
+#include <QFont>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -21,13 +23,37 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     this->setFixedSize(800,800);
+    gameOver = new QLabel("游戏结束",this);
+    gameOver->resize(200,200);
+    gameOver->move(300,300);
+    gameOver->setFont(QFont("黑体",35,QFont::Bold));
+    gameOver->setVisible(false);
+
+    //隐藏联机控制台
+    ui->ipEdit->setVisible(false);
+    ui->portEdit->setVisible(false);
+    ui->btnConnect->setVisible(false);
+    ui->connectionStatus->setVisible(false);
+    //
+
     ui->btnStartGame->installEventFilter(this);
 
     QTimer *timer = new QTimer;
+    connect(ui->actionExit, &QAction::triggered, [=](){
+        this->close();
+    });
     connect(ui->btnStartGame,&QPushButton::clicked,[=](){
         initGame();
         timer->start(50);
         ui->btnStartGame->setDisabled(true);
+    });
+    connect(ui->actionStart,&QAction::triggered,[=](){
+        initGame();
+        timer->start(50);
+        ui->btnStartGame->setDisabled(true);
+    });
+    connect(ui->actionRestart,&QAction::triggered,[=](){
+        emit restartGame();
     });
 
     connect(timer,&QTimer::timeout,this,[=](){
@@ -53,9 +79,6 @@ MainWindow::~MainWindow()
 void MainWindow::initGame()
 {
     this->setFixedSize(800,800);
-    connect(ui->actionExit, &QAction::triggered, [=](){
-        this->close();
-    });
     connect(bird,&Bird::flyStatusChanged,bird,&Bird::flapWing);
     bird->birdX=400;
     bird->birdY=400;
@@ -63,14 +86,18 @@ void MainWindow::initGame()
     pipeUp = new Pipe(0,Pipe::up,this);
     pipeDown = new Pipe(0,Pipe::down,this);
     createPipes();
+    connect(pipeUp,&Pipe::crashed,this,&MainWindow::crashed);
+    connect(pipeDown,&Pipe::crashed,this,&MainWindow::crashed);
+
     gameRunning = true;
-//    emit this->continueGame();
 }
 
 void MainWindow::updateFrame()
 {
     birdMove();
     repaint();
+//    qDebug() << " bdy= " << bird->birdY << " pux= " << pipeUp->x << " pdx= " << pipeDown->x ;
+    checkCrash();
 }
 
 void MainWindow::paintEvent(QPaintEvent *event)
@@ -97,10 +124,12 @@ void MainWindow::paintEvent(QPaintEvent *event)
     {
         QPainter upPipePainter(this);
         upPipePainter.translate(pipeUp->x, pipeUp->y);
-        upPipePainter.drawRect(0,0,pipeUp->width,pipeUp->height);
+//        upPipePainter.drawRect(0,0,pipeUp->width,pipeUp->height);
+        upPipePainter.drawPixmap(0,0,pipeUp->width,pipeUp->height,QPixmap(":/res/pipe_up.png"));
         QPainter downPipePainter(this);
         downPipePainter.translate(pipeDown->x, pipeDown->y);
-        downPipePainter.drawRect(0,0,pipeDown->width,pipeDown->height);
+        downPipePainter.drawPixmap(0,0,pipeDown->width,pipeDown->height,QPixmap(":/res/pipe_down.png"));
+//        downPipePainter.drawRect(0,0,pipeDown->width,pipeDown->height);
     }
 
 }
@@ -124,12 +153,15 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
 void MainWindow::createPipes()
 {
-    int holeWidth = QRandomGenerator::global()->bounded(200,300);
-    int holeCenter = QRandomGenerator::global()->bounded(300,600);
-//    int holeWidth = 200;
-//    int holeCenter = 400;
+    int holeWidth = QRandomGenerator::global()->bounded(150,300);
+    int holeCenter = QRandomGenerator::global()->bounded(200,600);
     pipeUp->initPosition(holeWidth,holeCenter);
     pipeDown->initPosition(holeWidth,holeCenter);
+    connect(pipeUp, &Pipe::resetMe, this, &MainWindow::resetPipes);
+    connect(pipeUp, &Pipe::getScore, [=](){-
+        score++;
+        ui->scoreLabel->setText(QString::number(score));
+    });
 }
 
 void MainWindow::initServer()
@@ -179,6 +211,26 @@ void MainWindow::birdMove()
         bird->speed = 1;
         bird->birdY += bird->speed;
     }
+}
+
+void MainWindow::checkCrash()
+{
+    pipeUp->isCrashed(bird);
+    pipeDown->isCrashed(bird);
+}
+
+void MainWindow::crashed()
+{
+    gameRunning = false;
+    gameOver->show();
+}
+
+void MainWindow::resetPipes()
+{
+    int holeWidth = QRandomGenerator::global()->bounded(150,300);
+    int holeCenter = QRandomGenerator::global()->bounded(200,600);
+    pipeUp->reset(holeWidth,holeCenter);
+    pipeDown->reset(holeWidth,holeCenter);
 }
 
 
