@@ -56,6 +56,7 @@ public:
     Pipe *pipeDown;
     QLabel *gameOver;
     QWidget *mainWindow;
+//    QTimer *syncTimer;
 
 
 signals:

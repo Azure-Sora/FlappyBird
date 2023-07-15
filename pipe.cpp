@@ -37,7 +37,7 @@ void Pipe::initPosition(int holeWidth, int holePosition)
 
 void Pipe::move()
 {
-    x -= 20;
+    x -= 10;
     if(x < -50)
     {
         emit resetMe();

@@ -127,6 +127,7 @@ void GameMainWindow::initGame()
 
 void GameMainWindow::updateFrame()
 {
+//    qDebug() << gameRunning;
     if(gameMode == GameMainWindow::singelplayer)
     {
         birdMove();
@@ -247,15 +248,17 @@ void GameMainWindow::createPipes()
 void GameMainWindow::initServer()
 {
     MainWindow *myMain = static_cast<MainWindow *>(mainWindow);
+//    syncTimer = new QTimer;
+//    syncTimer->start(50);
+//    connect(syncTimer,&QTimer::timeout,this,&GameMainWindow::syncWithClient);
     connect(myMain->client,&QTcpSocket::readyRead,this,[=](){
         QByteArray buf = myMain->client->readAll();
         QString bufStr;
         bufStr.prepend(buf);
-        qDebug() << bufStr;
+//        qDebug() << bufStr;
         if(bufStr == "fly")
         {
             bird2->fly();
-            return;
         }
     });
 
@@ -270,14 +273,14 @@ void GameMainWindow::initClient()
         QByteArray buf = myMain->socket->readAll();
         QString bufStr;
         bufStr.prepend(buf);
-        qDebug() << bufStr;
-        if(bufStr == "fly")
-        {
-            bird2->fly();
-            return;
-        }
+//        qDebug() << bufStr;
+//        if(bufStr == "fly")
+//        {
+//            bird2->fly();
+//            return;
+//        }
         //bird1Y-bird2Y-b1flystatus-b2flystatus-pipeUpX-pipeDownX-Score-gameRunning-holePosition
-        QStringList data = bufStr.split("-");
+        QStringList data = bufStr.split("~");
         syncWithServer(data);
     });
 
@@ -345,13 +348,13 @@ void GameMainWindow::syncWithServer(QStringList data)
 
 void GameMainWindow::syncWithClient()
 {
-    MainWindow *myMain = static_cast<MainWindow *>(mainWindow);
+    static MainWindow *myMain = static_cast<MainWindow *>(mainWindow);
     QStringList data;
-    data << QString::number(bird1->birdY) << "-" << QString::number(bird2->birdY) << "-"
-         << QString::number(bird1->flyStatus) << "-" << QString::number(bird2->flyStatus) << "-"
-         << QString::number(pipeUp->x) << "-" << QString::number(pipeUp->y) << "-"
-         << QString::number(pipeDown->x) << "-" << QString::number(pipeDown->y) << "-"
-         << QString::number(score) << "-" << (gameRunning == true ? "1" : "0") << "-"
+    data << QString::number(bird1->birdY) << "~" << QString::number(bird2->birdY) << "~"
+         << QString::number(bird1->flyStatus) << "~" << QString::number(bird2->flyStatus) << "~"
+         << QString::number(pipeUp->x) << "~" << QString::number(pipeUp->y) << "~"
+         << QString::number(pipeDown->x) << "~" << QString::number(pipeDown->y) << "~"
+         << QString::number(score) << "~" << (gameRunning == true ? "1" : "0") << "~"
          << QString::number((pipeDown->y - pipeUp->height)/2 + pipeUp->height);
     QString tmpstr = data.join("");
     QByteArray tmpbytearr = tmpstr.toLocal8Bit();
