@@ -238,7 +238,7 @@ void GameMainWindow::createPipes()
     pipeUp->initPosition(holeWidth,holeCenter);
     pipeDown->initPosition(holeWidth,holeCenter);
     connect(pipeUp, &Pipe::resetMe, this, &GameMainWindow::resetPipes);
-    connect(pipeUp, &Pipe::getScore, [=](){-
+    connect(pipeUp, &Pipe::getScore, [=](){
         score++;
         scoreChanged();
     });
