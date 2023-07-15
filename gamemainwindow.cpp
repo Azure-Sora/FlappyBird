@@ -20,7 +20,8 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     QMainWindow(parent)
     ,mainWindow(mainWindow)
     ,ui(new Ui::GameMainWindow)
-    , bird(new Bird)
+    ,bird1(new Bird)
+    ,bird2(new Bird)
 {
     ui->setupUi(this);
 
@@ -72,16 +73,23 @@ GameMainWindow::~GameMainWindow()
 void GameMainWindow::initGame()
 {
     this->setFixedSize(800,800);
-    connect(bird,&Bird::flyStatusChanged,bird,&Bird::flapWing);
-    bird->birdX=400;
-    bird->birdY=400;
-    bird->speed=0;
+    gameMode = static_cast<MainWindow *>(mainWindow)->isMultiplayer == true ? multiplayer : singelplayer;
+
     score=0;
     pipeUp = new Pipe(0,Pipe::up,this);
     pipeDown = new Pipe(0,Pipe::down,this);
     createPipes();
-    connect(pipeUp,&Pipe::crashed,this,&GameMainWindow::crashed);
-    connect(pipeDown,&Pipe::crashed,this,&GameMainWindow::crashed);
+
+    if(gameMode == GameMainWindow::singelplayer)
+    {
+        connect(bird1,&Bird::flyStatusChanged,bird1,&Bird::flapWing);
+        bird1->birdX=400;
+        bird1->birdY=400;
+        bird1->speed=0;
+        connect(pipeUp,&Pipe::crashed,this,&GameMainWindow::crashed);
+        connect(pipeDown,&Pipe::crashed,this,&GameMainWindow::crashed);
+    }
+
     if(static_cast<MainWindow *>(mainWindow)->isMultiplayer == true) initClient();
 
     gameRunning = true;
@@ -98,9 +106,9 @@ void GameMainWindow::updateFrame()
 void GameMainWindow::paintEvent(QPaintEvent *event)
 {
     QPainter birdPainter(this);
-    birdPainter.translate(bird->birdX,bird->birdY);
+    birdPainter.translate(bird1->birdX,bird1->birdY);
     //    painter.drawEllipse(QPoint(0,0),20,20);
-    switch (bird->flyStatus) {
+    switch (bird1->flyStatus) {
     case 1:
         birdPainter.drawPixmap(0,0,40,40,QPixmap(":/res/bird_yellow_down.png"));
         break;
@@ -133,7 +141,7 @@ void GameMainWindow::keyPressEvent(QKeyEvent *event)
 {
     if(event->key() == Qt::Key_Space)
     {
-        bird->fly();
+        bird1->fly();
     }
 
 }
@@ -142,7 +150,7 @@ void GameMainWindow::mousePressEvent(QMouseEvent *event)
 {
     if(event->button() == Qt::LeftButton)
     {
-        bird->fly();
+        bird1->fly();
     }
 }
 
@@ -172,15 +180,16 @@ void GameMainWindow::initServer()
 void GameMainWindow::initClient()
 {
     qDebug() << "initclient";
-    socket = static_cast<MainWindow *>(mainWindow)->socket;
-    connect(socket,&QTcpSocket::readyRead,this,[=](){
-        QByteArray buf = socket->readAll();
+    MainWindow *myMain = static_cast<MainWindow *>(mainWindow);
+//    socket = static_cast<MainWindow *>(mainWindow)->socket;
+    connect(myMain->socket,&QTcpSocket::readyRead,this,[=](){
+        QByteArray buf = myMain->socket->readAll();
         QString bufStr;
         bufStr.prepend(buf);
         qDebug() << bufStr;
         if(bufStr == "fly")
         {
-            bird->fly();
+            bird1->fly();
         }
     });
 
@@ -189,23 +198,23 @@ void GameMainWindow::initClient()
 
 void GameMainWindow::birdMove()
 {
-    if(bird->birdY >= 30)
+    if(bird1->birdY >= 30)
     {
-        bird->speed += gravity;
-        bird->birdY += bird->speed;
+        bird1->speed += gravity;
+        bird1->birdY += bird1->speed;
     }
     else
     {
-        bird->birdY = 30;
-        bird->speed = 1;
-        bird->birdY += bird->speed;
+        bird1->birdY = 30;
+        bird1->speed = 1;
+        bird1->birdY += bird1->speed;
     }
 }
 
 void GameMainWindow::checkCrash()
 {
-    pipeUp->isCrashed(bird);
-    pipeDown->isCrashed(bird);
+    pipeUp->isCrashed(bird1);
+    pipeDown->isCrashed(bird1);
 }
 
 void GameMainWindow::crashed()

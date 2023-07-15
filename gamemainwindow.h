@@ -40,6 +40,9 @@ public:
     void crashed();
     void resetPipes();
 
+    enum playerCount {singelplayer , multiplayer};
+    playerCount gameMode;
+
     const int gravity = 2;
     int score;
     bool gameRunning;
@@ -55,7 +58,8 @@ signals:
 
 private:
     Ui::GameMainWindow *ui;
-    Bird *bird;
+    Bird *bird1;
+    Bird *bird2;
 };
 
 #endif // GAMEMAINWINDOW_H
