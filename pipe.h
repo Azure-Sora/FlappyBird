@@ -23,7 +23,7 @@ public:
     int y;
     int height;
     const int width = 50;
-    QWidget *parent;
+    QWidget *myParent;
 
     void initPosition(int holeWidth, int holePosition);
     void move();

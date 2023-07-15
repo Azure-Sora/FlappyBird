@@ -2,14 +2,20 @@
 #include <QPainter>
 #include <QTimer>
 #include <QThread>
+#include "gamemainwindow.h"
 
-Pipe::Pipe(int y,positions pos,QWidget *parent) : x(800) , y(y) , position(pos) , parent(parent)
+Pipe::Pipe(int y,positions pos,QWidget *parent) : x(800) , y(y) , position(pos) , myParent(parent)
 {
     QTimer *timer = new QTimer;
-    timer->start(50);
-    connect(timer,&QTimer::timeout,[=](){
-        move();
-    });
+    GameMainWindow *gameMain = static_cast<GameMainWindow *>(myParent);
+
+    if(gameMain->gameMode == GameMainWindow::singelplayer || gameMain->isServer == true)
+    {
+        timer->start(50);
+        connect(timer,&QTimer::timeout,[=](){
+            move();
+        });
+    }
 }
 
 void Pipe::initPosition(int holeWidth, int holePosition)

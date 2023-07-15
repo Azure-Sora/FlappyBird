@@ -15,6 +15,7 @@
 #include <QLabel>
 #include <QFont>
 #include "mainwindow.h"
+#include <QStringList>
 
 GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     QMainWindow(parent)
@@ -92,27 +93,45 @@ void GameMainWindow::initGame()
 
     if(gameMode == GameMainWindow::multiplayer)
     {
+        isServer = static_cast<MainWindow *>(mainWindow)->isServer;
         connect(bird1,&Bird::flyStatusChanged,bird1,&Bird::flapWing);
-        bird1->birdX=400;
+        bird1->birdX=500;
         bird1->birdY=400;
         bird1->speed=0;
         connect(bird2,&Bird::flyStatusChanged,bird2,&Bird::flapWing);
-        bird2->birdX=400;
+        bird2->birdX=300;
         bird2->birdY=400;
         bird2->speed=0;
+        if(isServer)
+        {
+            initServer();
+        }
+        else
+        {
+            initClient();
+        }
     }
 
-    if(static_cast<MainWindow *>(mainWindow)->isMultiplayer == true) initClient();
+
+//    if(static_cast<MainWindow *>(mainWindow)->isMultiplayer == true) initClient();
 
     gameRunning = true;
 }
 
 void GameMainWindow::updateFrame()
 {
-    birdMove();
-    repaint();
-    //    qDebug() << " bdy= " << bird->birdY << " pux= " << pipeUp->x << " pdx= " << pipeDown->x ;
-    checkCrash();
+    if(isServer)
+    {
+        birdMove();
+        bird2Move();
+        repaint();
+        checkCrash();
+        syncWithClient();
+    }
+    else
+    {
+        repaint();
+    }
 }
 
 void GameMainWindow::paintEvent(QPaintEvent *event)
@@ -133,6 +152,25 @@ void GameMainWindow::paintEvent(QPaintEvent *event)
     default:
         birdPainter.drawPixmap(0,0,40,40,QPixmap(":/res/bird_yellow_up.png"));
         break;
+    }
+    if(gameMode == GameMainWindow::multiplayer)
+    {
+        QPainter bird2Painter(this);
+        bird2Painter.translate(bird2->birdX,bird2->birdY);
+        switch (bird2->flyStatus) {
+        case 1:
+            bird2Painter.drawPixmap(0,0,40,40,QPixmap(":/res/bird_blue_down.png"));
+            break;
+        case 2:
+            bird2Painter.drawPixmap(0,0,40,40,QPixmap(":/res/bird_blue_middle.png"));
+            break;
+        case 3:
+            bird2Painter.drawPixmap(0,0,40,40,QPixmap(":/res/bird_blue_up.png"));
+            break;
+        default:
+            bird2Painter.drawPixmap(0,0,40,40,QPixmap(":/res/bird_blue_up.png"));
+            break;
+        }
     }
 
     if(gameRunning == true)
@@ -186,12 +224,13 @@ void GameMainWindow::createPipes()
 
 void GameMainWindow::initServer()
 {
-    server = new QTcpServer(this);
+    MainWindow *myMain = static_cast<MainWindow *>(mainWindow);
+
 }
 
 void GameMainWindow::initClient()
 {
-    qDebug() << "initclient";
+//    qDebug() << "initclient";
     MainWindow *myMain = static_cast<MainWindow *>(mainWindow);
 //    socket = static_cast<MainWindow *>(mainWindow)->socket;
     connect(myMain->socket,&QTcpSocket::readyRead,this,[=](){
@@ -201,8 +240,12 @@ void GameMainWindow::initClient()
         qDebug() << bufStr;
         if(bufStr == "fly")
         {
-            bird1->fly();
+            bird2->fly();
+            return;
         }
+        //bird1Y-bird2Y-b1flystatus-b2flystatus-pipeUpX-pipeDownX-Score-gameRunning
+        QStringList data = bufStr.split("-");
+        syncWithServer(data);
     });
 
 
@@ -227,6 +270,11 @@ void GameMainWindow::checkCrash()
 {
     pipeUp->isCrashed(bird1);
     pipeDown->isCrashed(bird1);
+    if(gameMode == GameMainWindow::multiplayer)
+    {
+        pipeUp->isCrashed(bird2);
+        pipeDown->isCrashed(bird2);
+    }
 }
 
 void GameMainWindow::crashed()
@@ -241,5 +289,49 @@ void GameMainWindow::resetPipes()
     int holeCenter = QRandomGenerator::global()->bounded(200,600);
     pipeUp->reset(holeWidth,holeCenter);
     pipeDown->reset(holeWidth,holeCenter);
+}
+
+void GameMainWindow::syncWithServer(QStringList data)
+{
+    //bird1Y-bird2Y-b1flystatus-b2flystatus-pipeUpX-pipeUpY-pipeDownX-pipeDownY-Score-gameRunning
+    bird1->birdY=data.at(0).toInt();
+    bird2->birdY=data.at(1).toInt();
+    bird1->flyStatus=data.at(2).toInt();
+    bird2->flyStatus=data.at(3).toInt();
+    pipeUp->x=data.at(4).toInt();
+    pipeUp->y=data.at(5).toInt();
+    pipeDown->x=data.at(6).toInt();
+    pipeDown->y=data.at(7).toInt();
+    score=data.at(8).toInt();
+    gameRunning = (data.at(9).toInt() == 1 ? true : false);
+}
+
+void GameMainWindow::syncWithClient()
+{
+    MainWindow *myMain = static_cast<MainWindow *>(mainWindow);
+    QStringList data;
+    data << QString::number(bird1->birdY) << "-" << QString::number(bird2->birdY) << "-"
+         << QString::number(bird1->flyStatus) << "-" << QString::number(bird2->flyStatus) << "-"
+         << QString::number(pipeUp->x) << "-" << QString::number(pipeUp->y) << "-"
+         << QString::number(pipeDown->x) << "-" << QString::number(pipeDown->y) << "-"
+         << QString::number(score) << "-" << (gameRunning == true ? "1" : "0");
+    QString tmpstr = data.join("");
+    QByteArray tmpbytearr = tmpstr.toLocal8Bit();
+    myMain->client->write(tmpbytearr);
+}
+
+void GameMainWindow::bird2Move()
+{
+    if(bird2->birdY >= 30)
+    {
+        bird2->speed += gravity;
+        bird2->birdY += bird2->speed;
+    }
+    else
+    {
+        bird2->birdY = 30;
+        bird2->speed = 1;
+        bird2->birdY += bird2->speed;
+    }
 }
 

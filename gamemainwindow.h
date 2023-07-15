@@ -10,6 +10,7 @@
 #include <QTcpSocket>
 #include <QLabel>
 #include "mainwindow.h"
+#include <QStringList>
 
 namespace Ui {
 class GameMainWindow;
@@ -39,6 +40,9 @@ public:
     void checkCrash();
     void crashed();
     void resetPipes();
+    void syncWithServer(QStringList data);
+    void syncWithClient();
+    void bird2Move();
 
     enum playerCount {singelplayer , multiplayer};
     playerCount gameMode;

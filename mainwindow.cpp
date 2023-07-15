@@ -48,6 +48,7 @@ void MainWindow::initServer()
         ui->btnConnect->setDisabled(true);
         isServer = true;
     });
+    ui->btnStartServer->setDisabled(true);
 }
 
 void MainWindow::initClient()
