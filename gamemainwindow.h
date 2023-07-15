@@ -43,6 +43,7 @@ public:
     void syncWithServer(QStringList data);
     void syncWithClient();
     void bird2Move();
+    void scoreChanged();
 
     enum playerCount {singelplayer , multiplayer};
     playerCount gameMode;

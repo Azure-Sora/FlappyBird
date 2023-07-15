@@ -34,6 +34,7 @@ public:
     void isCrashed(Bird *bird);
     void reset(int holeWidth, int holePosition);
     void isScored();
+    void caculatePosition(int holePosition, Pipe *another);
 
 signals:
     void crashed();

@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "gamemainwindow.h"
+#include <QString>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -43,6 +44,8 @@ void MainWindow::initServer()
     server = new QTcpServer(this);
     int port = ui->serverPortEdit->text().toInt();
     server->listen(QHostAddress::Any,port);
+    ui->serverPortEdit->setText(QString("已在%1端口启动").arg(QString::number(port)));
+    ui->serverPortEdit->setReadOnly(true);
     connect(server,&QTcpServer::newConnection,this,[=](){
         client = server->nextPendingConnection();
         ui->connectionStatus->setText("已作为1P连接");
@@ -51,6 +54,7 @@ void MainWindow::initServer()
         isServer = true;
     });
     ui->btnStartServer->setDisabled(true);
+    ui->btnConnect->setDisabled(true);
 }
 
 void MainWindow::initClient()
@@ -62,6 +66,8 @@ void MainWindow::initClient()
     if(socket->waitForConnected(5000))
     {
         ui->connectionStatus->setText("已作为2P连接");
+        ui->btnStartServer->setDisabled(true);
+        ui->btnConnect->setDisabled(true);
         isMultiplayer = true;
         isServer = false;
     }

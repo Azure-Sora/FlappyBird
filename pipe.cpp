@@ -37,7 +37,7 @@ void Pipe::initPosition(int holeWidth, int holePosition)
 
 void Pipe::move()
 {
-    x -= 10;
+    x -= 20;
     if(x < -50)
     {
         emit resetMe();
@@ -98,3 +98,16 @@ void Pipe::isScored()
 {
 
 }
+
+void Pipe::caculatePosition(int holePosition, Pipe *another)
+{
+    if(this->position == Pipe::down)
+    {
+        this->height = 800 - y;
+    }
+    if(this->position == Pipe::up)
+    {
+        this->height = holePosition - (another->y - holePosition);
+    }
+}
+
