@@ -4,18 +4,13 @@
 #include <QThread>
 #include "gamemainwindow.h"
 
-Pipe::Pipe(int y,positions pos,QWidget *parent) : x(800) , y(y) , position(pos) , myParent(parent)
+Pipe::Pipe(int y,positions pos,QWidget *parent,bool active) : x(800) , y(y) , position(pos) , myParent(parent), isActive(active)
 {
-    QTimer *timer = new QTimer;
-    GameMainWindow *gameMain = static_cast<GameMainWindow *>(myParent);
+    moveTimer = new QTimer;
 
-    if(gameMain->gameMode == GameMainWindow::singelplayer || gameMain->isServer == true)
-    {
-        timer->start(50);
-        connect(timer,&QTimer::timeout,[=](){
-            move();
-        });
-    }
+    connect(moveTimer,&QTimer::timeout,[=](){
+        move();
+    });
 }
 
 void Pipe::initPosition(int holeWidth, int holePosition)
@@ -34,11 +29,10 @@ void Pipe::initPosition(int holeWidth, int holePosition)
         break;
     }
 
-    QTimer *timer = new QTimer;
-    timer->start(50);
-    connect(timer, &QTimer::timeout, [=](){
-        move();
-    });
+    if(isActive && moveTimer->isActive() == false)
+    {
+        moveTimer->start(50);
+    }
 }
 
 void Pipe::move()

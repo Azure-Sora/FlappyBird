@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QEvent>
 #include "bird.h"
+#include <QTimer>
 
 
 class Pipe : public QWidget
@@ -17,13 +18,15 @@ public:
         up = 1,
         down = 2
     };
-    Pipe(int y,positions pos,QWidget *parent);
+    Pipe(int y,positions pos,QWidget *parent,bool active);
     positions position;
     int x;
     int y;
     int height;
     const int width = 50;
     QWidget *myParent;
+    bool isActive;
+    QTimer *moveTimer;
 
     void initPosition(int holeWidth, int holePosition);
     void move();

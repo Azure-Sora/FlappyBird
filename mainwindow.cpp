@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     isMultiplayer = false;
 
+
     connect(ui->btnStartServer,&QPushButton::clicked,this,&MainWindow::initServer);
 
     connect(ui->btnStartGame,&QPushButton::clicked,[=](){
@@ -46,6 +47,7 @@ void MainWindow::initServer()
         client = server->nextPendingConnection();
         ui->connectionStatus->setText("已作为1P连接");
         ui->btnConnect->setDisabled(true);
+        isMultiplayer = true;
         isServer = true;
     });
     ui->btnStartServer->setDisabled(true);

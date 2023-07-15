@@ -64,11 +64,6 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
 GameMainWindow::~GameMainWindow()
 {
     delete ui;
-    delete server;
-    delete socket;
-    delete pipeUp;
-    delete pipeDown;
-    delete gameOver;
 }
 
 void GameMainWindow::initGame()
@@ -77,11 +72,14 @@ void GameMainWindow::initGame()
     gameMode = static_cast<MainWindow *>(mainWindow)->isMultiplayer == true ? multiplayer : singelplayer;
 
     score=0;
-    pipeUp = new Pipe(0,Pipe::up,this);
-    pipeDown = new Pipe(0,Pipe::down,this);
+    pipeUp = new Pipe(0,Pipe::up,this,false);
+    pipeDown = new Pipe(0,Pipe::down,this,false);
 
     if(gameMode == GameMainWindow::singelplayer)
     {
+        isServer = true;
+        pipeUp->isActive = true;
+        pipeDown->isActive = true;
         createPipes();
         connect(bird1,&Bird::flyStatusChanged,bird1,&Bird::flapWing);
         bird1->birdX=400;
@@ -105,6 +103,9 @@ void GameMainWindow::initGame()
         if(isServer)
         {
             initServer();
+            pipeUp->isActive = true;
+            pipeDown->isActive = true;
+            createPipes();
         }
         else
         {
@@ -120,6 +121,13 @@ void GameMainWindow::initGame()
 
 void GameMainWindow::updateFrame()
 {
+    if(gameMode == GameMainWindow::singelplayer)
+    {
+        birdMove();
+        repaint();
+        checkCrash();
+        return;
+    }
     if(isServer)
     {
         birdMove();
@@ -200,7 +208,15 @@ void GameMainWindow::mousePressEvent(QMouseEvent *event)
 {
     if(event->button() == Qt::LeftButton)
     {
-        bird1->fly();
+        if(gameMode == GameMainWindow::singelplayer || isServer == true)
+        {
+            bird1->fly();
+        }
+        if(gameMode == GameMainWindow::multiplayer && isServer == false)
+        {
+            MainWindow *myMain = static_cast<MainWindow *>(mainWindow);
+            myMain->socket->write("fly");
+        }
     }
 }
 
@@ -225,6 +241,17 @@ void GameMainWindow::createPipes()
 void GameMainWindow::initServer()
 {
     MainWindow *myMain = static_cast<MainWindow *>(mainWindow);
+    connect(myMain->client,&QTcpSocket::readyRead,this,[=](){
+        QByteArray buf = myMain->client->readAll();
+        QString bufStr;
+        bufStr.prepend(buf);
+        qDebug() << bufStr;
+        if(bufStr == "fly")
+        {
+            bird2->fly();
+            return;
+        }
+    });
 
 }
 
