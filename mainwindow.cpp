@@ -2,6 +2,7 @@
 #include "./ui_mainwindow.h"
 #include "gamemainwindow.h"
 #include <QString>
+#include <QComboBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -9,8 +10,14 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    this->setWindowTitle("主菜单");
     isMultiplayer = false;
+    difficulty = 1;
+    ui->difficultySelector->setCurrentIndex(1);
 
+    connect(ui->difficultySelector,&QComboBox::currentIndexChanged,[=](){
+        difficulty = ui->difficultySelector->currentIndex();
+    });
 
     connect(ui->btnStartServer,&QPushButton::clicked,this,&MainWindow::initServer);
 

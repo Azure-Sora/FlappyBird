@@ -56,7 +56,7 @@ public:
     Pipe *pipeDown;
     QLabel *gameOver;
     QWidget *mainWindow;
-//    QTimer *syncTimer;
+    int difficulty;
 
 
 signals:

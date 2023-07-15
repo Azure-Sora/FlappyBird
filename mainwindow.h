@@ -22,6 +22,7 @@ public:
 
     bool isMultiplayer;
     bool isServer;
+    int difficulty;
 
     void startAGame();
     void initServer();

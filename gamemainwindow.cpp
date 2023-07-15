@@ -25,6 +25,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     ,bird2(new Bird)
 {
     ui->setupUi(this);
+    this->setWindowTitle("Flappy Bird");
 
     this->setFixedSize(800,800);
     gameOver = new QLabel("游戏结束",this);
@@ -74,7 +75,7 @@ void GameMainWindow::initGame()
 {
     this->setFixedSize(800,800);
     gameMode = static_cast<MainWindow *>(mainWindow)->isMultiplayer == true ? multiplayer : singelplayer;
-
+    difficulty = static_cast<MainWindow *>(mainWindow)->difficulty + 1;
     score=0;
     pipeUp = new Pipe(0,Pipe::up,this,false);
     pipeDown = new Pipe(0,Pipe::down,this,false);
