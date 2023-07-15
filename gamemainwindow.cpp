@@ -32,7 +32,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     gameOver->setFont(QFont("黑体",35,QFont::Bold));
     gameOver->setVisible(false);
 
-    ui->btnStartGame->installEventFilter(this);
+    ui->btnStartGame->installEventFilter(this);//已弃用
 
     QTimer *timer = new QTimer;
     connect(ui->actionExit, &QAction::triggered, [=](){
@@ -78,16 +78,28 @@ void GameMainWindow::initGame()
     score=0;
     pipeUp = new Pipe(0,Pipe::up,this);
     pipeDown = new Pipe(0,Pipe::down,this);
-    createPipes();
 
     if(gameMode == GameMainWindow::singelplayer)
     {
+        createPipes();
         connect(bird1,&Bird::flyStatusChanged,bird1,&Bird::flapWing);
         bird1->birdX=400;
         bird1->birdY=400;
         bird1->speed=0;
         connect(pipeUp,&Pipe::crashed,this,&GameMainWindow::crashed);
         connect(pipeDown,&Pipe::crashed,this,&GameMainWindow::crashed);
+    }
+
+    if(gameMode == GameMainWindow::multiplayer)
+    {
+        connect(bird1,&Bird::flyStatusChanged,bird1,&Bird::flapWing);
+        bird1->birdX=400;
+        bird1->birdY=400;
+        bird1->speed=0;
+        connect(bird2,&Bird::flyStatusChanged,bird2,&Bird::flapWing);
+        bird2->birdX=400;
+        bird2->birdY=400;
+        bird2->speed=0;
     }
 
     if(static_cast<MainWindow *>(mainWindow)->isMultiplayer == true) initClient();

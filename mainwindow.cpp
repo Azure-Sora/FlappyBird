@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     isMultiplayer = false;
 
+    connect(ui->btnStartServer,&QPushButton::clicked,this,&MainWindow::initServer);
+
     connect(ui->btnStartGame,&QPushButton::clicked,[=](){
         startAGame();
     });
@@ -35,6 +37,19 @@ void MainWindow::startAGame()
     this->hide();
 }
 
+void MainWindow::initServer()
+{
+    server = new QTcpServer(this);
+    int port = ui->serverPortEdit->text().toInt();
+    server->listen(QHostAddress::Any,port);
+    connect(server,&QTcpServer::newConnection,this,[=](){
+        client = server->nextPendingConnection();
+        ui->connectionStatus->setText("已作为1P连接");
+        ui->btnConnect->setDisabled(true);
+        isServer = true;
+    });
+}
+
 void MainWindow::initClient()
 {
     socket = new QTcpSocket(this);
@@ -43,8 +58,9 @@ void MainWindow::initClient()
     socket->connectToHost(ip,port);
     if(socket->waitForConnected(5000))
     {
-        ui->connectionStatus->setText("已连接");
+        ui->connectionStatus->setText("已作为2P连接");
         isMultiplayer = true;
+        isServer = false;
     }
     else
     {

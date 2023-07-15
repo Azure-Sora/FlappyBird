@@ -43,6 +43,7 @@ public:
     enum playerCount {singelplayer , multiplayer};
     playerCount gameMode;
 
+    bool isServer;
     const int gravity = 2;
     int score;
     bool gameRunning;

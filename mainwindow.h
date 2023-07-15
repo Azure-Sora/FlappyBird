@@ -18,8 +18,10 @@ public:
 
     QTcpServer *server;
     QTcpSocket *socket;
+    QTcpSocket *client;
 
     bool isMultiplayer;
+    bool isServer;
 
     void startAGame();
     void initServer();
