@@ -70,6 +70,12 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
             timer->stop();
             gameTimer->stop();
             bkgdMusic->stop();
+            pipeUp->moveTimer->stop();
+            pipeUp->stepMoveTimer->stop();
+            pipeUp->upAndDownMoveTimer->stop();
+            pipeDown->moveTimer->stop();
+            pipeDown->stepMoveTimer->stop();
+            pipeDown->upAndDownMoveTimer->stop();
 
             delete timer;
             delete gameTimer;
@@ -120,6 +126,7 @@ void GameMainWindow::initGame()
         bird1->speed=0;
         connect(pipeUp,&Pipe::crashed,this,&GameMainWindow::crashed);
         connect(pipeDown,&Pipe::crashed,this,&GameMainWindow::crashed);
+        connect(ground,&Ground::hitGround,this,&GameMainWindow::crashed);
     }
 
     if(gameMode == GameMainWindow::multiplayer)
@@ -141,6 +148,7 @@ void GameMainWindow::initGame()
             createPipes();
             connect(pipeUp,&Pipe::crashed,this,&GameMainWindow::crashed);
             connect(pipeDown,&Pipe::crashed,this,&GameMainWindow::crashed);
+            connect(ground,&Ground::hitGround,this,&GameMainWindow::crashed);
         }
         else
         {
@@ -351,10 +359,12 @@ void GameMainWindow::checkCrash()
 {
     pipeUp->isCrashed(bird1);
     pipeDown->isCrashed(bird1);
+    ground->checkHitGround(bird1);
 //    if(gameMode == GameMainWindow::multiplayer)
 //    {
 //        pipeUp->isCrashed(bird2);
 //        pipeDown->isCrashed(bird2);
+//        ground->checkHitGround(bird2);
 //    }
 }
 
@@ -385,13 +395,13 @@ void GameMainWindow::resetPipes()
 
 void GameMainWindow::syncWithServer(QStringList data)
 {
-    //bird1Y-bird2Y-b1flystatus-b2flystatus-pipeUpX-pipeUpY-pipeDownX-pipeDownY-Score-gameRunning-holePosition
+    //bird1Y-bird2Y-b1flystatus-b2flystatus-pipeUpX-pipeUpHeight-pipeDownX-pipeDownY-Score-gameRunning-holePosition-difficulty
     bird1->birdY=data.at(0).toInt();
     bird2->birdY=data.at(1).toInt();
     bird1->flyStatus=data.at(2).toInt();
     bird2->flyStatus=data.at(3).toInt();
     pipeUp->x=data.at(4).toInt();
-    pipeUp->y=data.at(5).toInt();
+    pipeUp->height=data.at(5).toInt();
     pipeDown->x=data.at(6).toInt();
     pipeDown->y=data.at(7).toInt();
     if(score != data.at(8).toInt())
@@ -401,6 +411,7 @@ void GameMainWindow::syncWithServer(QStringList data)
     }
     gameRunning = (data.at(9).toInt() == 1 ? true : false);
     int holePosition = data.at(10).toInt();
+    int difficulty = data.at(11).toInt();
     pipeDown->caculatePosition(holePosition,pipeUp);
     pipeUp->caculatePosition(holePosition,pipeDown);
 }
@@ -411,10 +422,10 @@ void GameMainWindow::syncWithClient()
     QStringList data;
     data << QString::number(bird1->birdY) << "~" << QString::number(bird2->birdY) << "~"
          << QString::number(bird1->flyStatus) << "~" << QString::number(bird2->flyStatus) << "~"
-         << QString::number(pipeUp->x) << "~" << QString::number(pipeUp->y) << "~"
+         << QString::number(pipeUp->x) << "~" << QString::number(pipeUp->height) << "~"
          << QString::number(pipeDown->x) << "~" << QString::number(pipeDown->y) << "~"
          << QString::number(score) << "~" << (gameRunning == true ? "1" : "0") << "~"
-         << QString::number((pipeDown->y - pipeUp->height)/2 + pipeUp->height);
+         << QString::number((pipeDown->y - pipeUp->height)/2 + pipeUp->height) << "~" << QString::number(difficulty);
     QString tmpstr = data.join("");
     QByteArray tmpbytearr = tmpstr.toLocal8Bit();
     myMain->client->write(tmpbytearr);
@@ -469,10 +480,15 @@ void GameMainWindow::initMusic()
 void GameMainWindow::feverTime()
 {
     gameScene = night;
-    if(difficulty < 3)
+    if(gameMode == GameMainWindow::singelplayer || isServer)
     {
-        difficulty++;
-    ground->difficulty=difficulty;
+        pipeUp->startUpAndDown();
+        pipeDown->startUpAndDown();
+        if(difficulty < 3)
+        {
+            difficulty++;
+            ground->difficulty=difficulty;
+        }
     }
 }
 

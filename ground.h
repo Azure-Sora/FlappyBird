@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QTimer>
+#include "bird.h"
 
 class Ground : public QWidget
 {
@@ -14,7 +15,10 @@ public:
 
     void move();
     void resetMe();
-    void checkHitGround();
+    void checkHitGround(Bird* bird);
+
+signals:
+    void hitGround();
 };
 
 #endif // GROUND_H

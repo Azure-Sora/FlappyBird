@@ -25,7 +25,13 @@ void Ground::resetMe()
     x=0;
 }
 
-void Ground::checkHitGround()
+void Ground::checkHitGround(Bird *bird)
 {
-
+    if(bird->birdY > 660)
+    {
+        emit hitGround();
+    }
 }
+
+
+

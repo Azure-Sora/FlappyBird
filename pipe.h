@@ -27,6 +27,9 @@ public:
     QWidget *myParent;
     bool isActive;
     QTimer *moveTimer;
+    QTimer *upAndDownMoveTimer;
+    QTimer *stepMoveTimer;
+    int upAndDownMovement;
 
     void initPosition(int holeWidth, int holePosition);
     void move();
@@ -35,6 +38,7 @@ public:
     void reset(int holeWidth, int holePosition);
     void isScored();
     void caculatePosition(int holePosition, Pipe *another);
+    void startUpAndDown();
 
 signals:
     void crashed();

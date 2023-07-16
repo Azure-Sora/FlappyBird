@@ -3,11 +3,12 @@
 #include <QTimer>
 #include <QThread>
 #include "gamemainwindow.h"
+#include <QRandomGenerator>
 
 Pipe::Pipe(int y,positions pos,QWidget *parent,bool active) : x(800) , y(y) , position(pos) , myParent(parent), isActive(active)
+    , upAndDownMoveTimer(new QTimer), stepMoveTimer(new QTimer)
 {
     moveTimer = new QTimer;
-
     connect(moveTimer,&QTimer::timeout,[=](){
         move();
     });
@@ -119,5 +120,27 @@ void Pipe::caculatePosition(int holePosition, Pipe *another)
     {
         this->height = holePosition - (another->y - holePosition);
     }
+}
+
+void Pipe::startUpAndDown()
+{
+    upAndDownMovement = 0;
+    upAndDownMoveTimer->start(1000);
+    connect(upAndDownMoveTimer, &QTimer::timeout, [=](){
+        upAndDownMovement = QRandomGenerator::global()->bounded(-100,100);
+//        qDebug() << QString::number(upAndDownMovement);
+    });
+    stepMoveTimer->start(50);
+    connect(stepMoveTimer, &QTimer::timeout,this,[=](){
+//        qDebug() << QString::number(upAndDownMovement / 20);
+        if(this->position == Pipe::up)
+        {
+            this->height += upAndDownMovement / 20;
+        }
+        else
+        {
+            this->y += upAndDownMovement / 20;
+        }
+    });
 }
 
