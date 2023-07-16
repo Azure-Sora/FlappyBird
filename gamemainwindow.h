@@ -48,9 +48,13 @@ public:
     void bird2Move();
     void scoreChanged();
     void initMusic();
+    void feverTime();
 
     enum playerCount {singelplayer , multiplayer};
     playerCount gameMode;
+
+    enum gameScenes {day , night};
+    gameScenes gameScene = day;
 
     bool isServer;
     const int gravity = 1;
@@ -64,6 +68,7 @@ public:
     Background *background;
     Ground *ground;
     QSoundEffect *bkgdMusic;
+    int gameTime;
 
 
 signals:

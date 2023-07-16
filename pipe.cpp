@@ -71,9 +71,19 @@ void Pipe::isCrashed(Bird *bird)
             }
         }
     }
-    if(this->position == Pipe::up && this->x > (bird->birdX - this->width) && this->x < (bird->birdX - 30))
+    if(static_cast<GameMainWindow *>(myParent)->difficulty >= 2)
     {
-        emit getScore();
+        if(this->position == Pipe::up && this->x > (bird->birdX - this->width) && this->x < (bird->birdX - 30))
+        {
+            emit getScore();
+        }
+    }
+    if(static_cast<GameMainWindow *>(myParent)->difficulty == 1)
+    {
+        if(this->position == Pipe::up && this->x > (bird->birdX - this->width) && this->x < (bird->birdX - 40))
+        {
+            emit getScore();
+        }
     }
 }
 

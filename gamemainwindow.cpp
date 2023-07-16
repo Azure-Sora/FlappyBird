@@ -30,6 +30,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     ,background(new Background)
     ,ground(new Ground(0))
     ,bkgdMusic(new QSoundEffect)
+    ,gameScene(day)
 {
     ui->setupUi(this);
     this->setWindowTitle("Flappy Bird");
@@ -41,6 +42,8 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     gameOver->setFont(QFont("黑体",35,QFont::Bold));
     gameOver->setVisible(false);
 
+    QTimer *gameTimer = new QTimer;
+    gameTime = 0;
     QTimer *timer = new QTimer;
     connect(ui->actionExit, &QAction::triggered, [=](){
         this->close();
@@ -48,22 +51,38 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     connect(ui->btnStartGame,&QPushButton::clicked,[=](){
         initGame();
         timer->start(25);
+        gameTimer->start(1000);
         ui->btnStartGame->setDisabled(true);
+        ui->actionStart->setDisabled(true);
     });
     connect(ui->actionStart,&QAction::triggered,[=](){
         initGame();
         timer->start(25);
+        gameTimer->start(1000);
         ui->btnStartGame->setDisabled(true);
+        ui->actionStart->setDisabled(true);
     });
 
     connect(timer,&QTimer::timeout,this,[=](){
         if(gameRunning == false)
         {
             timer->stop();
+            gameTimer->stop();
             bkgdMusic->stop();
+            delete timer;
+            delete gameTimer;
             crashed();
         }
         updateFrame();
+    });
+
+    connect(gameTimer, &QTimer::timeout ,[=](){
+        gameTime++;
+        if(gameTime == 24)
+        {
+            feverTime();
+        }
+//        qDebug () << QString::number(gameTime);
     });
 
 }
@@ -156,11 +175,36 @@ void GameMainWindow::paintEvent(QPaintEvent *event)
 {
     QPainter backgroundPainter(this);
     backgroundPainter.translate(background->x, 0);
-    backgroundPainter.drawPixmap(0,0,1800,800,QPixmap(":/res/background_day.png"));
+
+//    QStringList bkgdUrl;
+//    bkgdUrl << ":/res/background_" << (gameScene == day ? "day" : "night") << ".png";
+//    QString url;
+//    bkgdUrl.join(url);
+//    backgroundPainter.drawPixmap(0,0,1800,800,QPixmap(url));
+    if(gameScene == GameMainWindow::day)
+    {
+        backgroundPainter.drawPixmap(0,0,1800,800,QPixmap(":/res/background_day.png"));
+    }
+    else if(gameScene == GameMainWindow::night)
+    {
+        backgroundPainter.drawPixmap(0,0,1800,800,QPixmap(":/res/background_night.png"));
+    }
+
+//    switch (gameScene) {
+//    case day:
+//        backgroundPainter.drawPixmap(0,0,1800,800,QPixmap(":/res/background_day.png"));
+//        break;
+//    case night:
+//        backgroundPainter.drawPixmap(0,0,1800,800,QPixmap(":/res/background_night.png"));
+//        break;
+//    default:
+//        break;
+//    }
 
     if(gameRunning == true)
     {
         QPainter upPipePainter(this);
+
         upPipePainter.translate(pipeUp->x, pipeUp->y);
         //        upPipePainter.drawRect(0,0,pipeUp->width,pipeUp->height);
         upPipePainter.drawPixmap(0,0,pipeUp->width,pipeUp->height,QPixmap(":/res/pipe_up.png"));
@@ -173,6 +217,7 @@ void GameMainWindow::paintEvent(QPaintEvent *event)
     QPainter groundPainter(this);
     groundPainter.translate(ground->x, 700);
     groundPainter.drawPixmap(0,0,1600,100,QPixmap(":/res/ground.png"));
+
 
     QPainter birdPainter(this);
     birdPainter.translate(bird1->birdX,bird1->birdY);
@@ -421,6 +466,16 @@ void GameMainWindow::initMusic()
 //        {
 //            bkgdMusic->deleteLater();
 //        }
-//    });
+    //    });
+}
+
+void GameMainWindow::feverTime()
+{
+    gameScene = night;
+    if(difficulty < 3)
+    {
+        difficulty++;
+    ground->difficulty=difficulty;
+    }
 }
 

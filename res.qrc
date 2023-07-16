@@ -14,5 +14,6 @@
         <file>res/point.wav</file>
         <file>res/wing.wav</file>
         <file>res/Shooting_Stars.wav</file>
+        <file>res/background_night.png</file>
     </qresource>
 </RCC>
