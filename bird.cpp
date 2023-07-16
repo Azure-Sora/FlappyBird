@@ -19,7 +19,7 @@ void Bird::fly()
     QSoundEffect *flySound = new QSoundEffect;
     flySound->setSource(QUrl::fromLocalFile(":/res/wing.wav"));
     flySound->setLoopCount(1);
-    flySound->setVolume(0.2f);
+    flySound->setVolume(0.4f);
     flySound->play();
     connect(flySound, &QSoundEffect::playingChanged, [=](){
         if(flySound->isPlaying())
@@ -28,11 +28,12 @@ void Bird::fly()
         }
     });
 
-    emit flyStatusChanged();
+    emit flyStatusChanged();//用于扇翅膀动画
 }
 
 void Bird::flapWing()
 {
+    //用flyStatus播放扇翅膀动画
     QTimer *timer = new QTimer;
     timer->start(200);
     connect(timer,&QTimer::timeout,[=](){
