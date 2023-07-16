@@ -14,7 +14,7 @@ public:
     int birdY;
     int speed;
     int flyStatus;
-    const int flyPower = 8;
+    const int flyPower = 15;
 
     void fly();
     void flapWing();

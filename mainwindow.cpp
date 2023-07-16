@@ -7,6 +7,9 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , server(nullptr)
+    , socket(nullptr)
+    , client(nullptr)
 {
     ui->setupUi(this);
 

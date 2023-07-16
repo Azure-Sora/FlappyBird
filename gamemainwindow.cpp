@@ -31,6 +31,9 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     ,ground(new Ground(0))
     ,bkgdMusic(new QSoundEffect)
     ,gameScene(day)
+    ,gameTimer(new QTimer)
+    ,server(nullptr)
+    ,socket(nullptr)
 {
     ui->setupUi(this);
     this->setWindowTitle("Flappy Bird");
@@ -42,7 +45,6 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     gameOver->setFont(QFont("黑体",35,QFont::Bold));
     gameOver->setVisible(false);
 
-    QTimer *gameTimer = new QTimer;
     gameTime = 0;
     QTimer *timer = new QTimer;
     connect(ui->actionExit, &QAction::triggered, [=](){
@@ -51,7 +53,6 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     connect(ui->btnStartGame,&QPushButton::clicked,[=](){
         initGame();
         timer->start(25);
-        gameTimer->start(1000);
         ui->btnStartGame->setDisabled(true);
         ui->actionStart->setDisabled(true);
     });
@@ -69,8 +70,11 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
             timer->stop();
             gameTimer->stop();
             bkgdMusic->stop();
+
             delete timer;
             delete gameTimer;
+
+
             crashed();
         }
         updateFrame();
@@ -189,17 +193,6 @@ void GameMainWindow::paintEvent(QPaintEvent *event)
     {
         backgroundPainter.drawPixmap(0,0,1800,800,QPixmap(":/res/background_night.png"));
     }
-
-//    switch (gameScene) {
-//    case day:
-//        backgroundPainter.drawPixmap(0,0,1800,800,QPixmap(":/res/background_day.png"));
-//        break;
-//    case night:
-//        backgroundPainter.drawPixmap(0,0,1800,800,QPixmap(":/res/background_night.png"));
-//        break;
-//    default:
-//        break;
-//    }
 
     if(gameRunning == true)
     {
@@ -358,11 +351,11 @@ void GameMainWindow::checkCrash()
 {
     pipeUp->isCrashed(bird1);
     pipeDown->isCrashed(bird1);
-    if(gameMode == GameMainWindow::multiplayer)
-    {
-        pipeUp->isCrashed(bird2);
-        pipeDown->isCrashed(bird2);
-    }
+//    if(gameMode == GameMainWindow::multiplayer)
+//    {
+//        pipeUp->isCrashed(bird2);
+//        pipeDown->isCrashed(bird2);
+//    }
 }
 
 void GameMainWindow::crashed()
@@ -401,8 +394,11 @@ void GameMainWindow::syncWithServer(QStringList data)
     pipeUp->y=data.at(5).toInt();
     pipeDown->x=data.at(6).toInt();
     pipeDown->y=data.at(7).toInt();
-    score=data.at(8).toInt();
-    scoreChanged();
+    if(score != data.at(8).toInt())
+    {
+        score=data.at(8).toInt();
+        scoreChanged();
+    }
     gameRunning = (data.at(9).toInt() == 1 ? true : false);
     int holePosition = data.at(10).toInt();
     pipeDown->caculatePosition(holePosition,pipeUp);
@@ -461,12 +457,13 @@ void GameMainWindow::initMusic()
     bkgdMusic->setLoopCount(10);
     bkgdMusic->setVolume(0.6);
     bkgdMusic->play();
+    gameTimer->start(1000);
 //    connect(bkgdMusic, &QSoundEffect::playingChanged, [=](){
 //        if(bkgdMusic->isPlaying())
 //        {
 //            bkgdMusic->deleteLater();
 //        }
-    //    });
+//    });
 }
 
 void GameMainWindow::feverTime()

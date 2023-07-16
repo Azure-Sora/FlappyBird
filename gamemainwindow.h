@@ -69,6 +69,7 @@ public:
     Ground *ground;
     QSoundEffect *bkgdMusic;
     int gameTime;
+    QTimer *gameTimer;
 
 
 signals:
