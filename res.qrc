@@ -8,5 +8,6 @@
         <file>res/bird_blue_down.png</file>
         <file>res/bird_blue_middle.png</file>
         <file>res/bird_blue_up.png</file>
+        <file>res/background_day.png</file>
     </qresource>
 </RCC>

@@ -22,6 +22,7 @@ set(PROJECT_SOURCES
         pipe.h pipe.cpp
         res.qrc
         gamemainwindow.h gamemainwindow.cpp gamemainwindow.ui
+        background.h background.cpp
 
 )
 

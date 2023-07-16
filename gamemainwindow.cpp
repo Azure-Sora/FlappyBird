@@ -23,6 +23,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     ,ui(new Ui::GameMainWindow)
     ,bird1(new Bird)
     ,bird2(new Bird)
+    ,background(new Background)
 {
     ui->setupUi(this);
     this->setWindowTitle("Flappy Bird");
@@ -34,26 +35,20 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     gameOver->setFont(QFont("黑体",35,QFont::Bold));
     gameOver->setVisible(false);
 
-    ui->btnStartGame->installEventFilter(this);//已弃用
-
     QTimer *timer = new QTimer;
     connect(ui->actionExit, &QAction::triggered, [=](){
         this->close();
     });
     connect(ui->btnStartGame,&QPushButton::clicked,[=](){
         initGame();
-        timer->start(50);
+        timer->start(25);
         ui->btnStartGame->setDisabled(true);
     });
     connect(ui->actionStart,&QAction::triggered,[=](){
         initGame();
-        timer->start(50);
+        timer->start(25);
         ui->btnStartGame->setDisabled(true);
     });
-//    connect(ui->actionRestart,&QAction::triggered,[=](){
-//        emit restartGame();
-//        this->close();
-//    });
 
     connect(timer,&QTimer::timeout,this,[=](){
         if(gameRunning == false)
@@ -120,9 +115,6 @@ void GameMainWindow::initGame()
         }
     }
 
-
-//    if(static_cast<MainWindow *>(mainWindow)->isMultiplayer == true) initClient();
-
     gameRunning = true;
 }
 
@@ -152,6 +144,10 @@ void GameMainWindow::updateFrame()
 
 void GameMainWindow::paintEvent(QPaintEvent *event)
 {
+    QPainter backgroundPainter(this);
+    backgroundPainter.translate(background->x, 0);
+    backgroundPainter.drawPixmap(0,0,1800,800,QPixmap(":/res/background_day.png"));
+
     QPainter birdPainter(this);
     birdPainter.translate(bird1->birdX,bird1->birdY);
     //    painter.drawEllipse(QPoint(0,0),20,20);
@@ -249,9 +245,6 @@ void GameMainWindow::createPipes()
 void GameMainWindow::initServer()
 {
     MainWindow *myMain = static_cast<MainWindow *>(mainWindow);
-//    syncTimer = new QTimer;
-//    syncTimer->start(50);
-//    connect(syncTimer,&QTimer::timeout,this,&GameMainWindow::syncWithClient);
     connect(myMain->client,&QTcpSocket::readyRead,this,[=](){
         QByteArray buf = myMain->client->readAll();
         QString bufStr;
@@ -269,7 +262,6 @@ void GameMainWindow::initClient()
 {
 //    qDebug() << "initclient";
     MainWindow *myMain = static_cast<MainWindow *>(mainWindow);
-//    socket = static_cast<MainWindow *>(mainWindow)->socket;
     connect(myMain->socket,&QTcpSocket::readyRead,this,[=](){
         QByteArray buf = myMain->socket->readAll();
         QString bufStr;

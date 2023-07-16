@@ -31,13 +31,13 @@ void Pipe::initPosition(int holeWidth, int holePosition)
 
     if(isActive && moveTimer->isActive() == false)
     {
-        moveTimer->start(50);
+        moveTimer->start(25);
     }
 }
 
 void Pipe::move()
 {
-    x -= ( 10 * static_cast<GameMainWindow *>(myParent)->difficulty);
+    x -= ( 5 * static_cast<GameMainWindow *>(myParent)->difficulty);
     if(x < -50)
     {
         emit resetMe();

@@ -11,6 +11,7 @@
 #include <QLabel>
 #include "mainwindow.h"
 #include <QStringList>
+#include "background.h"
 
 namespace Ui {
 class GameMainWindow;
@@ -49,7 +50,7 @@ public:
     playerCount gameMode;
 
     bool isServer;
-    const int gravity = 2;
+    const int gravity = 1;
     int score;
     bool gameRunning;
     Pipe *pipeUp;
@@ -57,6 +58,7 @@ public:
     QLabel *gameOver;
     QWidget *mainWindow;
     int difficulty;
+    Background *background;
 
 
 signals:

@@ -26,8 +26,6 @@ MainWindow::MainWindow(QWidget *parent)
     });
     connect(ui->btnConnect,&QPushButton::clicked,this,&MainWindow::initClient);
 
-
-
 }
 
 MainWindow::~MainWindow()
