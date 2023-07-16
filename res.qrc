@@ -9,5 +9,10 @@
         <file>res/bird_blue_middle.png</file>
         <file>res/bird_blue_up.png</file>
         <file>res/background_day.png</file>
+        <file>res/ground.png</file>
+        <file>res/die.wav</file>
+        <file>res/point.wav</file>
+        <file>res/wing.wav</file>
+        <file>res/Shooting_Stars.wav</file>
     </qresource>
 </RCC>

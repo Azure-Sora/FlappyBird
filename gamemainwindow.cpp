@@ -16,6 +16,10 @@
 #include <QFont>
 #include "mainwindow.h"
 #include <QStringList>
+#include "ground.h"
+#include <QSoundEffect>
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
 GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     QMainWindow(parent)
@@ -24,6 +28,8 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     ,bird1(new Bird)
     ,bird2(new Bird)
     ,background(new Background)
+    ,ground(new Ground(0))
+    ,bkgdMusic(new QSoundEffect)
 {
     ui->setupUi(this);
     this->setWindowTitle("Flappy Bird");
@@ -54,6 +60,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
         if(gameRunning == false)
         {
             timer->stop();
+            bkgdMusic->stop();
             crashed();
         }
         updateFrame();
@@ -71,9 +78,12 @@ void GameMainWindow::initGame()
     this->setFixedSize(800,800);
     gameMode = static_cast<MainWindow *>(mainWindow)->isMultiplayer == true ? multiplayer : singelplayer;
     difficulty = static_cast<MainWindow *>(mainWindow)->difficulty + 1;
+    ground->difficulty=difficulty;
     score=0;
     pipeUp = new Pipe(0,Pipe::up,this,false);
     pipeDown = new Pipe(0,Pipe::down,this,false);
+
+    initMusic();
 
     if(gameMode == GameMainWindow::singelplayer)
     {
@@ -148,6 +158,22 @@ void GameMainWindow::paintEvent(QPaintEvent *event)
     backgroundPainter.translate(background->x, 0);
     backgroundPainter.drawPixmap(0,0,1800,800,QPixmap(":/res/background_day.png"));
 
+    if(gameRunning == true)
+    {
+        QPainter upPipePainter(this);
+        upPipePainter.translate(pipeUp->x, pipeUp->y);
+        //        upPipePainter.drawRect(0,0,pipeUp->width,pipeUp->height);
+        upPipePainter.drawPixmap(0,0,pipeUp->width,pipeUp->height,QPixmap(":/res/pipe_up.png"));
+        QPainter downPipePainter(this);
+        downPipePainter.translate(pipeDown->x, pipeDown->y);
+        downPipePainter.drawPixmap(0,0,pipeDown->width,pipeDown->height,QPixmap(":/res/pipe_down.png"));
+        //        downPipePainter.drawRect(0,0,pipeDown->width,pipeDown->height);
+    }
+
+    QPainter groundPainter(this);
+    groundPainter.translate(ground->x, 700);
+    groundPainter.drawPixmap(0,0,1600,100,QPixmap(":/res/ground.png"));
+
     QPainter birdPainter(this);
     birdPainter.translate(bird1->birdX,bird1->birdY);
     //    painter.drawEllipse(QPoint(0,0),20,20);
@@ -183,18 +209,6 @@ void GameMainWindow::paintEvent(QPaintEvent *event)
             bird2Painter.drawPixmap(0,0,40,40,QPixmap(":/res/bird_blue_up.png"));
             break;
         }
-    }
-
-    if(gameRunning == true)
-    {
-        QPainter upPipePainter(this);
-        upPipePainter.translate(pipeUp->x, pipeUp->y);
-        //        upPipePainter.drawRect(0,0,pipeUp->width,pipeUp->height);
-        upPipePainter.drawPixmap(0,0,pipeUp->width,pipeUp->height,QPixmap(":/res/pipe_up.png"));
-        QPainter downPipePainter(this);
-        downPipePainter.translate(pipeDown->x, pipeDown->y);
-        downPipePainter.drawPixmap(0,0,pipeDown->width,pipeDown->height,QPixmap(":/res/pipe_down.png"));
-        //        downPipePainter.drawRect(0,0,pipeDown->width,pipeDown->height);
     }
 
 }
@@ -309,6 +323,17 @@ void GameMainWindow::checkCrash()
 void GameMainWindow::crashed()
 {
     gameRunning = false;
+    QSoundEffect *dieSound = new QSoundEffect;
+    dieSound->setSource(QUrl::fromLocalFile(":/res/die.wav"));
+    dieSound->setLoopCount(1);
+    dieSound->setVolume(0.5f);
+    dieSound->play();
+    connect(dieSound, &QSoundEffect::playingChanged, [=](){
+        if(dieSound->isPlaying())
+        {
+            dieSound->deleteLater();
+        }
+    });
     gameOver->show();
 }
 
@@ -371,6 +396,31 @@ void GameMainWindow::bird2Move()
 
 void GameMainWindow::scoreChanged()
 {
+    QSoundEffect *scoreSound = new QSoundEffect;
+    scoreSound->setSource(QUrl::fromLocalFile(":/res/point.wav"));
+    scoreSound->setLoopCount(1);
+    scoreSound->setVolume(0.5f);
+    scoreSound->play();
+    connect(scoreSound, &QSoundEffect::playingChanged, [=](){
+        if(scoreSound->isPlaying())
+        {
+            scoreSound->deleteLater();
+        }
+    });
     ui->scoreLabel->setText(QString::number(score));
+}
+
+void GameMainWindow::initMusic()
+{
+    bkgdMusic->setSource(QUrl::fromLocalFile(":/res/Shooting_Stars.wav"));
+    bkgdMusic->setLoopCount(10);
+    bkgdMusic->setVolume(0.6);
+    bkgdMusic->play();
+//    connect(bkgdMusic, &QSoundEffect::playingChanged, [=](){
+//        if(bkgdMusic->isPlaying())
+//        {
+//            bkgdMusic->deleteLater();
+//        }
+//    });
 }
 

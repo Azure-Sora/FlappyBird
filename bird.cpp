@@ -3,6 +3,7 @@
 #include <QTimer>
 #include <QWidget>
 #include <QDebug>
+#include <QSoundEffect>
 
 Bird::Bird()
 {
@@ -14,6 +15,19 @@ void Bird::fly()
 {
     speed -= flyPower;
     flyStatus = 3;
+
+    QSoundEffect *flySound = new QSoundEffect;
+    flySound->setSource(QUrl::fromLocalFile(":/res/wing.wav"));
+    flySound->setLoopCount(1);
+    flySound->setVolume(0.2f);
+    flySound->play();
+    connect(flySound, &QSoundEffect::playingChanged, [=](){
+        if(flySound->isPlaying())
+        {
+            flySound->deleteLater();
+        }
+    });
+
     emit flyStatusChanged();
 }
 

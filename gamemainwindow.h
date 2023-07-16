@@ -12,6 +12,8 @@
 #include "mainwindow.h"
 #include <QStringList>
 #include "background.h"
+#include "ground.h"
+#include <QSoundEffect>
 
 namespace Ui {
 class GameMainWindow;
@@ -45,6 +47,7 @@ public:
     void syncWithClient();
     void bird2Move();
     void scoreChanged();
+    void initMusic();
 
     enum playerCount {singelplayer , multiplayer};
     playerCount gameMode;
@@ -59,6 +62,8 @@ public:
     QWidget *mainWindow;
     int difficulty;
     Background *background;
+    Ground *ground;
+    QSoundEffect *bkgdMusic;
 
 
 signals:
