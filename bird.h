@@ -15,6 +15,7 @@ public:
     int speed;
     int flyStatus;
     const int flyPower = 15;
+    const int maxFlySpeed = -15;
 
     void fly();
     void flapWing();

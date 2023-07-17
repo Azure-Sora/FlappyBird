@@ -22,8 +22,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->setWindowTitle("主菜单");
     isMultiplayer = false;
-    difficulty = 1;
-    ui->difficultySelector->setCurrentIndex(1);
+    difficulty = 0;
+    ui->difficultySelector->setCurrentIndex(0);
 
     connect(ui->difficultySelector,&QComboBox::currentIndexChanged,[=](){
         difficulty = ui->difficultySelector->currentIndex();

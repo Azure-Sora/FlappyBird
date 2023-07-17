@@ -15,7 +15,14 @@ Bird::Bird(int x, int y)
 
 void Bird::fly()
 {
-    speed -= flyPower;
+    if(speed - flyPower < maxFlySpeed)
+    {
+        speed = maxFlySpeed;
+    }
+    else
+    {
+        speed -= flyPower;
+    }
     flyStatus = 3;
 
     QSoundEffect *flySound = new QSoundEffect;

@@ -73,6 +73,8 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
          << QString(":/res/numbers/9.png");
     updateScoreLabel();
 
+//    int *fps = new int(0);
+//    *fps = 0;
     gameTime = 0;
     QTimer *timer = new QTimer;
     connect(ui->actionExit, &QAction::triggered, [=](){
@@ -113,6 +115,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     });
 
     connect(timer,&QTimer::timeout,this,[=](){
+//        (*fps)++;
         updateFrame();
         if(gameRunning == false) //若游戏结束，开始结束收尾
         {
@@ -132,10 +135,16 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     });
 
     connect(gameTimer, &QTimer::timeout ,[=](){
+//        qDebug() << *fps;
+//        (*fps) = 0;
         gameTime++;
         if(gameTime == 24) //游戏运行24后卡点音乐进入feverTime
         {
-            feverTime();
+            feverTime(1);
+        }
+        if(gameTime == 55)
+        {
+            feverTime(2);
         }
 //        qDebug () << QString::number(gameTime);
     });
@@ -154,6 +163,7 @@ void GameMainWindow::initGame()
     gameMode = static_cast<MainWindow *>(mainWindow)->isMultiplayer == true ? multiplayer : singelplayer;
     difficulty = static_cast<MainWindow *>(mainWindow)->difficulty + 1;
     ground->difficulty=difficulty;
+    gameScene = static_cast<GameMainWindow::gameScenes>(difficulty);
     score=0;
     pipeUp = new Pipe(0,Pipe::up,this,false);
     pipeDown = new Pipe(0,Pipe::down,this,false);
@@ -240,23 +250,58 @@ void GameMainWindow::paintEvent(QPaintEvent *event) //从底层到顶层逐层�
     {
         backgroundPainter.drawPixmap(0,0,1800,800,QPixmap(":/res/background_night.png"));
     }
+    else if(gameScene == GameMainWindow::city)
+    {
+        backgroundPainter.drawPixmap(0,0,1800,800,QPixmap(":/res/background_city.png"));
+    }
 
     if(gameRunning == true)
     {
-        QPainter upPipePainter(this);
+        if(gameScene == GameMainWindow::day)
+        {
+            QPainter upPipePainter(this);
+            upPipePainter.translate(pipeUp->x, pipeUp->y);
+            upPipePainter.drawPixmap(0,0,pipeUp->width,pipeUp->height,QPixmap(":/res/pipe_up.png"));
+            QPainter downPipePainter(this);
+            downPipePainter.translate(pipeDown->x, pipeDown->y);
+            downPipePainter.drawPixmap(0,0,pipeDown->width,pipeDown->height,QPixmap(":/res/pipe_down.png"));
+        }
+        else if(gameScene == GameMainWindow::night)
+        {
+            QPainter upPipePainter(this);
+            upPipePainter.translate(pipeUp->x, pipeUp->y);
+            upPipePainter.drawPixmap(0,0,pipeUp->width,pipeUp->height,QPixmap(":/res/pipe_up_night.png"));
+            QPainter downPipePainter(this);
+            downPipePainter.translate(pipeDown->x, pipeDown->y);
+            downPipePainter.drawPixmap(0,0,pipeDown->width,pipeDown->height,QPixmap(":/res/pipe_down_night.png"));
+        }
+        else if(gameScene == GameMainWindow::city)
+        {
+            QPainter upPipePainter(this);
+            upPipePainter.translate(pipeUp->x, pipeUp->y);
+            upPipePainter.drawPixmap(0,0,pipeUp->width,pipeUp->height,QPixmap(":/res/pipe_city.png").copy(0,0,pipeUp->width,pipeUp->height));
+            QPainter downPipePainter(this);
+            downPipePainter.translate(pipeDown->x, pipeDown->y);
+            downPipePainter.drawPixmap(0,0,pipeDown->width,pipeDown->height,QPixmap(":/res/pipe_city.png").copy(0,0,pipeDown->width,pipeDown->height));
+        }
 
-        upPipePainter.translate(pipeUp->x, pipeUp->y);
-        //        upPipePainter.drawRect(0,0,pipeUp->width,pipeUp->height);
-        upPipePainter.drawPixmap(0,0,pipeUp->width,pipeUp->height,QPixmap(":/res/pipe_up.png"));
-        QPainter downPipePainter(this);
-        downPipePainter.translate(pipeDown->x, pipeDown->y);
-        downPipePainter.drawPixmap(0,0,pipeDown->width,pipeDown->height,QPixmap(":/res/pipe_down.png"));
-        //        downPipePainter.drawRect(0,0,pipeDown->width,pipeDown->height);
     }
 
     QPainter groundPainter(this);
     groundPainter.translate(ground->x, 700);
-    groundPainter.drawPixmap(0,0,1600,100,QPixmap(":/res/ground.png"));
+
+    if(gameScene == GameMainWindow::day)
+    {
+        groundPainter.drawPixmap(0,0,1600,100,QPixmap(":/res/ground.png"));
+    }
+    else if(gameScene == GameMainWindow::night)
+    {
+        groundPainter.drawPixmap(0,0,1600,100,QPixmap(":/res/ground_night.png"));
+    }
+    else if(gameScene == GameMainWindow::city)
+    {
+        groundPainter.drawPixmap(0,0,1600,100,QPixmap(":/res/ground_city.png"));
+    }
 
 
     QPainter birdPainter(this);
@@ -509,27 +554,25 @@ void GameMainWindow::initMusic() //初始化背景音乐
     bkgdMusic->setVolume(0.6f);
     bkgdMusic->play();
     gameTimer->start(1000); //初始化音乐的时候再开始计时，以卡点
-//    connect(bkgdMusic, &QSoundEffect::playingChanged, [=](){
-//        if(bkgdMusic->isPlaying())
-//        {
-//            bkgdMusic->deleteLater();
-//        }
-//    });
 }
 
-void GameMainWindow::feverTime() //进入feverTime，背景切换到夜晚，难度+1，并且开始水管移动
+void GameMainWindow::feverTime(int times) //进入feverTime，背景切换到夜晚，难度+1，并且开始水管移动
 {
-    gameScene = night;
+//    gameScene = night;
     if(gameMode == GameMainWindow::singelplayer || isServer)
     {
-        pipeUp->startUpAndDown();
-        pipeDown->startUpAndDown();
+        if(times == 1)
+        {
+            pipeUp->startUpAndDown();
+            pipeDown->startUpAndDown();
+        }
         if(difficulty < 3)
         {
             difficulty++;
             ground->difficulty=difficulty;
         }
     }
+    gameScene = static_cast<GameMainWindow::gameScenes>(difficulty);
 }
 
 void GameMainWindow::updateScoreLabel()
@@ -544,8 +587,9 @@ void GameMainWindow::updateScoreLabel()
 
 void GameMainWindow::showHighestScore()
 {
-    static_cast<MainWindow *>(mainWindow)->highestScore = score > highScore ? score : highScore;
+
     int highScore = static_cast<MainWindow *>(mainWindow)->highestScore;
+    static_cast<MainWindow *>(mainWindow)->highestScore = score > highScore ? score : highScore;
     int highScoreOne = highScore % 10;
     int highScoreTen = (highScore % 100 - highScoreOne) / 10;
     int highScoreHundred = (highScore - highScoreOne - highScoreTen * 10) / 100;
@@ -573,5 +617,9 @@ void GameMainWindow::showHighestScore()
     hundred->resize(24,36);
     hundred->move(364,140);
     hundred->show();
+
+    connect(this,&GameMainWindow::closed,one,&QLabel::close);
+    connect(this,&GameMainWindow::closed,ten,&QLabel::close);
+    connect(this,&GameMainWindow::closed,hundred,&QLabel::close);
 }
 

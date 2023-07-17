@@ -44,14 +44,14 @@ public:
     void syncWithClient();
     void scoreChanged();
     void initMusic();
-    void feverTime();
+    void feverTime(int times);
     void updateScoreLabel();
     void showHighestScore();
 
     enum playerCount {singelplayer , multiplayer};
     playerCount gameMode;
 
-    enum gameScenes {day , night};
+    enum gameScenes {day = 1 , night , city};
     gameScenes gameScene = day;
 
     bool isServer;
