@@ -32,8 +32,6 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     ,bkgdMusic(new QSoundEffect)
     ,gameScene(day)
     ,gameTimer(new QTimer)
-    ,server(nullptr)
-    ,socket(nullptr)
     ,willRestart(false)
     ,score(0)
     ,scoreOne(new QLabel(this))
@@ -81,7 +79,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
         this->close();
     });
     connect(ui->btnStartGame,&QPushButton::clicked,[=](){
-        if(gameTime != 0)
+        if(gameOver->isVisible())
         {
             willRestart = true;
             this->close();
@@ -98,7 +96,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
 
     });
     connect(ui->actionStart,&QAction::triggered,[=](){
-        if(gameTime != 0)
+        if(gameOver->isVisible())
         {
             willRestart = true;
             this->close();
@@ -115,6 +113,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     });
 
     connect(timer,&QTimer::timeout,this,[=](){
+        updateFrame();
         if(gameRunning == false) //若游戏结束，开始结束收尾
         {
             timer->stop();
@@ -129,7 +128,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
 
             crashed(); //用于在2P也能显示出游戏结束，但会导致播放两次die音效，暂时想不到更好的实现方案
         }
-        updateFrame();
+
     });
 
     connect(gameTimer, &QTimer::timeout ,[=](){
@@ -208,7 +207,6 @@ void GameMainWindow::initGame()
 
 void GameMainWindow::updateFrame() //每帧更新画面
 {
-//    qDebug() << gameRunning;
     if(gameMode == GameMainWindow::singelplayer)
     {
         birdMove();

@@ -27,9 +27,6 @@ public:
     explicit GameMainWindow(QWidget *parent = nullptr,QWidget *mainWindow = nullptr);
     ~GameMainWindow();
 
-    QTcpServer *server;
-    QTcpSocket *socket;
-
     void initGame();
     void updateFrame();
     void paintEvent(QPaintEvent *event);

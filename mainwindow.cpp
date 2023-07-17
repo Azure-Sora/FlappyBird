@@ -7,8 +7,8 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , server(nullptr)
-    , socket(nullptr)
+    , server(new QTcpServer(this))
+    , socket(new QTcpSocket(this))
     , client(nullptr)
 {
     ui->setupUi(this);
@@ -58,7 +58,6 @@ void MainWindow::startAGame()
 
 void MainWindow::initServer()
 {
-    server = new QTcpServer(this);
     int port = ui->serverPortEdit->text().toInt();
     server->listen(QHostAddress::Any,port);
     ui->serverPortEdit->setText(QString("已在%1端口启动").arg(QString::number(port)));
@@ -76,7 +75,6 @@ void MainWindow::initServer()
 
 void MainWindow::initClient()
 {
-    socket = new QTcpSocket(this);
     QString ip = ui->ipEdit->text();
     int port = ui->portEdit->text().toInt();
     socket->connectToHost(ip,port);
