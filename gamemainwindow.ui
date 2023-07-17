@@ -17,30 +17,20 @@
    <widget class="QPushButton" name="btnStartGame">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>111</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>开始游戏</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="scoreLabel">
-    <property name="geometry">
-     <rect>
       <x>350</x>
-      <y>20</y>
-      <width>69</width>
-      <height>19</height>
+      <y>350</y>
+      <width>100</width>
+      <height>100</height>
      </rect>
     </property>
-    <property name="text">
-     <string>0</string>
+    <property name="styleSheet">
+     <string notr="true">background:transparent;</string>
     </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="flat">
+     <bool>true</bool>
     </property>
    </widget>
   </widget>
@@ -50,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>24</height>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">

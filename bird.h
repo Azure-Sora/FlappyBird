@@ -9,7 +9,7 @@ class Bird : public QWidget
     Q_OBJECT
 
 public:
-    Bird();
+    Bird(int x, int y);
     int birdX;
     int birdY;
     int speed;

@@ -25,6 +25,7 @@ set(PROJECT_SOURCES
         gamemainwindow.h gamemainwindow.cpp gamemainwindow.ui
         background.h background.cpp
         ground.h ground.cpp
+        startbutton.h startbutton.cpp
 
 )
 

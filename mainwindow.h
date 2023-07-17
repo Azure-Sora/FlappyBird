@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "gamemainwindow.h"
+#include "startbutton.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

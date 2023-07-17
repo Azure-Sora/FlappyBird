@@ -49,6 +49,7 @@ public:
     void scoreChanged();
     void initMusic();
     void feverTime();
+    void updateScoreLabel();
 
     enum playerCount {singelplayer , multiplayer};
     playerCount gameMode;
@@ -70,11 +71,16 @@ public:
     QSoundEffect *bkgdMusic;
     int gameTime;
     QTimer *gameTimer;
+    bool willRestart;
+    QLabel *scoreOne;
+    QLabel *scoreTen;
+    QLabel *scoreHundred;
+    QStringList *nums;
 
 
 signals:
 //    void restartGame();
-    void closed();
+    void closed(bool restart);
 
 private:
     Ui::GameMainWindow *ui;

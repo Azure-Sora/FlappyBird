@@ -6,9 +6,8 @@
 #include <QRandomGenerator>
 
 Pipe::Pipe(int y,positions pos,QWidget *parent,bool active) : x(800) , y(y) , position(pos) , myParent(parent), isActive(active)
-    , upAndDownMoveTimer(new QTimer), stepMoveTimer(new QTimer)
+    , upAndDownMoveTimer(new QTimer), stepMoveTimer(new QTimer), moveTimer(new QTimer)
 {
-    moveTimer = new QTimer;
     connect(moveTimer,&QTimer::timeout,[=](){
         move();
     });
@@ -129,16 +128,16 @@ void Pipe::startUpAndDown() //开始上下运动
     });
 
     //把每秒运动分成20份进行
-    stepMoveTimer->start(50);
+    stepMoveTimer->start(25);
     connect(stepMoveTimer, &QTimer::timeout,this,[=](){
 //        qDebug() << QString::number(upAndDownMovement / 20);
         if(this->position == Pipe::up)
         {
-            this->height += upAndDownMovement / 20;
+            this->height += upAndDownMovement / 50;
         }
         else
         {
-            this->y += upAndDownMovement / 20;
+            this->y += upAndDownMovement / 50;
         }
     });
 }

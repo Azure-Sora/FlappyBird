@@ -25,8 +25,8 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     QMainWindow(parent)
     ,mainWindow(mainWindow)
     ,ui(new Ui::GameMainWindow)
-    ,bird1(new Bird)
-    ,bird2(new Bird)
+    ,bird1(new Bird(400,400))
+    ,bird2(new Bird(999,999))
     ,background(new Background)
     ,ground(new Ground(0))
     ,bkgdMusic(new QSoundEffect)
@@ -34,16 +34,46 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     ,gameTimer(new QTimer)
     ,server(nullptr)
     ,socket(nullptr)
+    ,willRestart(false)
+    ,score(0)
+    ,scoreOne(new QLabel(this))
+    ,scoreTen(new QLabel(this))
+    ,scoreHundred(new QLabel(this))
+    ,nums(new QStringList)
 {
     ui->setupUi(this);
     this->setWindowTitle("Flappy Bird");
+    ui->btnStartGame->setFocus();
 
     this->setFixedSize(800,800);//初始化游戏结束的字
-    gameOver = new QLabel("游戏结束",this);
-    gameOver->resize(200,200);
-    gameOver->move(300,300);
-    gameOver->setFont(QFont("黑体",35,QFont::Bold));
+    gameOver = new QLabel(this);
+    gameOver->resize(390,90);
+    gameOver->setScaledContents(true);
+    gameOver->setPixmap(QPixmap(":/res/gameOver.png"));
+    gameOver->move(205,225);
     gameOver->setVisible(false);
+
+    QLabel *pressToStart = new QLabel(this);
+    pressToStart->resize(310,190);
+    pressToStart->setScaledContents(true);
+    pressToStart->setPixmap(QPixmap(":/res/press_space_to_start.png"));
+    pressToStart->move(245,100);
+    pressToStart->show();
+
+    scoreOne->resize(24,36);
+    scoreOne->move(412,40);
+    scoreOne->show();
+    scoreTen->resize(24,36);
+    scoreTen->move(388,40);
+    scoreTen->show();
+    scoreHundred->resize(24,36);
+    scoreHundred->move(364,40);
+    scoreHundred->show();
+    *nums << QString(":/res/numbers/0.png") << QString(":/res/numbers/1.png") << QString(":/res/numbers/2.png")
+         << QString(":/res/numbers/3.png") << QString(":/res/numbers/4.png") << QString(":/res/numbers/5.png")
+         << QString(":/res/numbers/6.png") << QString(":/res/numbers/7.png") << QString(":/res/numbers/8.png")
+         << QString(":/res/numbers/9.png");
+    updateScoreLabel();
 
     gameTime = 0;
     QTimer *timer = new QTimer;
@@ -51,17 +81,37 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
         this->close();
     });
     connect(ui->btnStartGame,&QPushButton::clicked,[=](){
-        initGame();
-        timer->start(25);
-        ui->btnStartGame->setDisabled(true);
-        ui->actionStart->setDisabled(true);
+        if(gameTime != 0)
+        {
+            willRestart = true;
+            this->close();
+        }
+        else
+        {
+            initGame();
+            timer->start(25);
+            ui->btnStartGame->setDisabled(true);
+            ui->btnStartGame->hide();
+            pressToStart->hide();
+            ui->actionStart->setDisabled(true);
+        }
+
     });
     connect(ui->actionStart,&QAction::triggered,[=](){
-        initGame();
-        timer->start(25);
-        gameTimer->start(1000);
-        ui->btnStartGame->setDisabled(true);
-        ui->actionStart->setDisabled(true);
+        if(gameTime != 0)
+        {
+            willRestart = true;
+            this->close();
+        }
+        else
+        {
+            initGame();
+            timer->start(25);
+            ui->btnStartGame->setDisabled(true);
+            ui->btnStartGame->hide();
+            pressToStart->hide();
+            ui->actionStart->setDisabled(true);
+        }
     });
 
     connect(timer,&QTimer::timeout,this,[=](){
@@ -76,10 +126,6 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
             pipeDown->moveTimer->stop();
             pipeDown->stepMoveTimer->stop();
             pipeDown->upAndDownMoveTimer->stop();
-
-            delete timer;
-            delete gameTimer;
-
 
             crashed(); //用于在2P也能显示出游戏结束，但会导致播放两次die音效，暂时想不到更好的实现方案
         }
@@ -290,7 +336,7 @@ void GameMainWindow::mousePressEvent(QMouseEvent *event)
 
 void GameMainWindow::closeEvent(QCloseEvent *event)
 {
-    emit closed(); //用于关闭游戏窗口后显示菜单窗口
+    emit closed(willRestart); //用于关闭游戏窗口后显示菜单窗口
 }
 
 void GameMainWindow::createPipes()
@@ -390,6 +436,9 @@ void GameMainWindow::crashed() //发生碰撞
         }
     });
     gameOver->show();
+    ui->btnStartGame->show();
+    ui->btnStartGame->setEnabled(true);
+    ui->btnStartGame->setFocus();
 }
 
 void GameMainWindow::resetPipes() //水管撞到左边边界后重置水管
@@ -466,7 +515,7 @@ void GameMainWindow::scoreChanged() //分数改变时刷新分数显示并播放
             scoreSound->deleteLater();
         }
     });
-    ui->scoreLabel->setText(QString::number(score));
+    updateScoreLabel();
 }
 
 void GameMainWindow::initMusic() //初始化背景音乐
@@ -497,5 +546,15 @@ void GameMainWindow::feverTime() //进入feverTime，背景切换到夜晚，难
             ground->difficulty=difficulty;
         }
     }
+}
+
+void GameMainWindow::updateScoreLabel()
+{
+    int one = score % 10;
+    int ten = (score % 100 - one) / 10;
+    int hundred = (score - one - ten * 10) / 100;
+    scoreOne->setPixmap(QPixmap((*nums).at(one)));
+    if(ten != 0) scoreTen->setPixmap(QPixmap((*nums).at(ten)));
+    if(hundred != 0) scoreHundred->setPixmap(QPixmap((*nums).at(hundred)));
 }
 

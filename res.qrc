@@ -15,5 +15,24 @@
         <file>res/wing.wav</file>
         <file>res/Shooting_Stars.wav</file>
         <file>res/background_night.png</file>
+        <file>res/gameOver.png</file>
+        <file>res/logo.png</file>
+        <file>res/multiplayer.png</file>
+        <file>res/play.png</file>
+        <file>res/play_pushed.png</file>
+        <file>res/play_touched.png</file>
+        <file>res/control_panel.png</file>
+        <file>res/control_panel_new.png</file>
+        <file>res/press_space_to_start.png</file>
+        <file>res/numbers/0.png</file>
+        <file>res/numbers/1.png</file>
+        <file>res/numbers/2.png</file>
+        <file>res/numbers/3.png</file>
+        <file>res/numbers/4.png</file>
+        <file>res/numbers/5.png</file>
+        <file>res/numbers/6.png</file>
+        <file>res/numbers/7.png</file>
+        <file>res/numbers/8.png</file>
+        <file>res/numbers/9.png</file>
     </qresource>
 </RCC>

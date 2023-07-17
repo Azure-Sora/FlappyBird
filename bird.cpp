@@ -5,9 +5,11 @@
 #include <QDebug>
 #include <QSoundEffect>
 
-Bird::Bird()
+Bird::Bird(int x, int y)
 {
     flyStatus = 1;
+    this->birdX = x;
+    this->birdY = y;
 
 }
 
@@ -35,7 +37,7 @@ void Bird::flapWing()
 {
     //用flyStatus播放扇翅膀动画
     QTimer *timer = new QTimer;
-    timer->start(200);
+    timer->start(100);
     connect(timer,&QTimer::timeout,[=](){
         if(flyStatus>3||flyStatus<1)
         {

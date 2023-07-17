@@ -13,6 +13,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+//    btnStart->move(100,100);
+//    btnStart->show();
+
+//    initInterface();
+
+
     this->setWindowTitle("主菜单");
     isMultiplayer = false;
     difficulty = 1;
@@ -24,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->btnStartServer,&QPushButton::clicked,this,&MainWindow::initServer);
 
-    connect(ui->btnStartGame,&QPushButton::clicked,[=](){
+    connect(ui->btnStartGame,&StartButton::clicked,[=](){
         startAGame();
     });
     connect(ui->btnConnect,&QPushButton::clicked,this,&MainWindow::initClient);
@@ -41,7 +47,10 @@ void MainWindow::startAGame()
 {
     GameMainWindow *gameMain = new GameMainWindow(this,this);
     gameMain->setAttribute(Qt::WA_QuitOnClose);
-    connect(gameMain,&GameMainWindow::closed,this,&MainWindow::show);
+    connect(gameMain,&GameMainWindow::closed,this,[=](bool restart){
+        this->show();
+        if(restart == true) startAGame();
+    });
 //    connect(gameMain,&GameMainWindow::restartGame,this,&MainWindow::startAGame);
     gameMain->show();
     this->hide();
@@ -86,3 +95,4 @@ void MainWindow::initClient()
 
 
 }
+
