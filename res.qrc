@@ -34,5 +34,6 @@
         <file>res/numbers/7.png</file>
         <file>res/numbers/8.png</file>
         <file>res/numbers/9.png</file>
+        <file>res/highest_score.png</file>
     </qresource>
 </RCC>

@@ -209,15 +209,15 @@ void GameMainWindow::updateFrame() //每帧更新画面
 {
     if(gameMode == GameMainWindow::singelplayer)
     {
-        birdMove();
+        birdMove(bird1);
         repaint();
         checkCrash();
         return;
     }
     if(isServer)
     {
-        birdMove();
-        bird2Move();
+        birdMove(bird1);
+        birdMove(bird2);
         repaint();
         checkCrash();
         syncWithClient(); //每帧都与2P同步
@@ -391,18 +391,18 @@ void GameMainWindow::initClient()
 
 }
 
-void GameMainWindow::birdMove()//1P鸟每帧的移动
+void GameMainWindow::birdMove(Bird *bird)//鸟每帧的移动
 {
-    if(bird1->birdY >= 30)
+    if(bird->birdY >= 30)
     {
-        bird1->speed += gravity;
-        bird1->birdY += bird1->speed;
+        bird->speed += gravity;
+        bird->birdY += bird->speed;
     }
     else
     {
-        bird1->birdY = 30;
-        bird1->speed = 1;
-        bird1->birdY += bird1->speed;
+        bird->birdY = 30;
+        bird->speed = 1;
+        bird->birdY += bird->speed;
     }
 }
 
@@ -422,6 +422,7 @@ void GameMainWindow::checkCrash() //每帧检测碰撞
 void GameMainWindow::crashed() //发生碰撞
 {
     gameRunning = false;
+    showHighestScore();
     QSoundEffect *dieSound = new QSoundEffect;
     dieSound->setSource(QUrl::fromLocalFile(":/res/die.wav"));
     dieSound->setLoopCount(1);
@@ -485,21 +486,6 @@ void GameMainWindow::syncWithClient() //主机打包消息并向客户机发送
     myMain->client->write(tmpbytearr);
 }
 
-void GameMainWindow::bird2Move()
-{
-    if(bird2->birdY >= 30)
-    {
-        bird2->speed += gravity;
-        bird2->birdY += bird2->speed;
-    }
-    else
-    {
-        bird2->birdY = 30;
-        bird2->speed = 1;
-        bird2->birdY += bird2->speed;
-    }
-}
-
 void GameMainWindow::scoreChanged() //分数改变时刷新分数显示并播放音效
 {
     QSoundEffect *scoreSound = new QSoundEffect;
@@ -520,7 +506,7 @@ void GameMainWindow::initMusic() //初始化背景音乐
 {
     bkgdMusic->setSource(QUrl::fromLocalFile(":/res/Shooting_Stars.wav"));
     bkgdMusic->setLoopCount(10);
-    bkgdMusic->setVolume(0.6);
+    bkgdMusic->setVolume(0.6f);
     bkgdMusic->play();
     gameTimer->start(1000); //初始化音乐的时候再开始计时，以卡点
 //    connect(bkgdMusic, &QSoundEffect::playingChanged, [=](){
@@ -554,5 +540,38 @@ void GameMainWindow::updateScoreLabel()
     scoreOne->setPixmap(QPixmap((*nums).at(one)));
     if(ten != 0) scoreTen->setPixmap(QPixmap((*nums).at(ten)));
     if(hundred != 0) scoreHundred->setPixmap(QPixmap((*nums).at(hundred)));
+}
+
+void GameMainWindow::showHighestScore()
+{
+    static_cast<MainWindow *>(mainWindow)->highestScore = score > highScore ? score : highScore;
+    int highScore = static_cast<MainWindow *>(mainWindow)->highestScore;
+    int highScoreOne = highScore % 10;
+    int highScoreTen = (highScore % 100 - highScoreOne) / 10;
+    int highScoreHundred = (highScore - highScoreOne - highScoreTen * 10) / 100;
+
+    QLabel *highScoreLabel = new QLabel(this);
+    highScoreLabel->resize(217,36);
+    highScoreLabel->move(292,100);
+    highScoreLabel->setPixmap(QPixmap(":/res/highest_score.png"));
+    highScoreLabel->show();
+
+    QLabel *one = new QLabel(this);
+    QLabel *ten = new QLabel(this);
+    QLabel *hundred = new QLabel(this);
+
+    one->setPixmap(QPixmap((*nums).at(highScoreOne)));
+    if(ten != 0) ten->setPixmap(QPixmap((*nums).at(highScoreTen)));
+    if(hundred != 0) hundred->setPixmap(QPixmap((*nums).at(highScoreHundred)));
+
+    one->resize(24,36);
+    one->move(412,140);
+    one->show();
+    ten->resize(24,36);
+    ten->move(388,140);
+    ten->show();
+    hundred->resize(24,36);
+    hundred->move(364,140);
+    hundred->show();
 }
 

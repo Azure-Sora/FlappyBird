@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     , server(new QTcpServer(this))
     , socket(new QTcpSocket(this))
     , client(nullptr)
+    , highestScore(0)
 {
     ui->setupUi(this);
 

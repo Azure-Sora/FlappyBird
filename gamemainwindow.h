@@ -36,17 +36,17 @@ public:
     void createPipes();
     void initServer();
     void initClient();
-    void birdMove();
+    void birdMove(Bird *bird);
     void checkCrash();
     void crashed();
     void resetPipes();
     void syncWithServer(QStringList data);
     void syncWithClient();
-    void bird2Move();
     void scoreChanged();
     void initMusic();
     void feverTime();
     void updateScoreLabel();
+    void showHighestScore();
 
     enum playerCount {singelplayer , multiplayer};
     playerCount gameMode;
@@ -76,7 +76,6 @@ public:
 
 
 signals:
-//    void restartGame();
     void closed(bool restart);
 
 private:
