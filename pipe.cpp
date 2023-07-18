@@ -6,7 +6,7 @@
 #include <QRandomGenerator>
 
 Pipe::Pipe(int y,positions pos,QWidget *parent,bool active) : x(800) , y(y) , position(pos) , myParent(parent), isActive(active)
-    , upAndDownMoveTimer(new QTimer), stepMoveTimer(new QTimer), moveTimer(new QTimer)
+    , upAndDownMoveTimer(new QTimer), stepMoveTimer(new QTimer), moveTimer(new QTimer), readyGetScore(false)
 {
     connect(moveTimer,&QTimer::timeout,this,[=](){
         move();
@@ -71,20 +71,15 @@ void Pipe::isCrashed(Bird *bird) //判定碰撞
             }
         }
     }
-    //通过检测管子通过鸟的后方判定得分，由于得分由帧来判定，低难度下速度低，故缩小判定区间防止重复得分
-    if(static_cast<GameMainWindow *>(myParent)->difficulty >= 2)
+    //通过检测管子通过鸟的前后判定得分
+    if(!readyGetScore && this->position == Pipe::up && this->x > (bird->birdX + 40) && this->x < (bird->birdX + 40 + width))
     {
-        if(this->position == Pipe::up && this->x > (bird->birdX - this->width) && this->x < (bird->birdX - 30))
-        {
-            emit getScore();
-        }
+        readyGetScore = true;
     }
-    if(static_cast<GameMainWindow *>(myParent)->difficulty == 1)
+    if(readyGetScore && this->position == Pipe::up && this->x > (bird->birdX - this->width) && this->x < (bird->birdX - 30))
     {
-        if(this->position == Pipe::up && this->x > (bird->birdX - this->width) && this->x < (bird->birdX - 40))
-        {
-            emit getScore();
-        }
+        readyGetScore = false;
+        emit getScore();
     }
 }
 

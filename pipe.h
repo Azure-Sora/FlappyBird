@@ -30,10 +30,10 @@ public:
     QTimer *upAndDownMoveTimer;
     QTimer *stepMoveTimer;
     int upAndDownMovement;
+    bool readyGetScore;
 
     void initPosition(int holeWidth, int holePosition);
     void move();
-//    void resetMe();
     void isCrashed(Bird *bird);
     void reset(int holeWidth, int holePosition);
     void caculatePosition(int holePosition, Pipe *another);
