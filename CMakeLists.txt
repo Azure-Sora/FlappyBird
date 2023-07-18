@@ -27,6 +27,7 @@ set(PROJECT_SOURCES
         ground.h ground.cpp
         startbutton.h startbutton.cpp
         coin.h coin.cpp
+        about.h about.cpp about.ui
 
 )
 

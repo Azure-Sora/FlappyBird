@@ -3,6 +3,7 @@
 #include "gamemainwindow.h"
 #include <QString>
 #include <QComboBox>
+#include "about.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -18,6 +19,12 @@ MainWindow::MainWindow(QWidget *parent)
     isMultiplayer = false;
     difficulty = 0;
     ui->difficultySelector->setCurrentIndex(0);
+
+    connect(ui->aboutButton,&QPushButton::clicked,this,[=](){
+        About *about = new About;
+        about->show();
+
+    });
 
     connect(ui->difficultySelector,&QComboBox::currentIndexChanged,this,[=](){
         difficulty = ui->difficultySelector->currentIndex();

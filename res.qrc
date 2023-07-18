@@ -42,5 +42,7 @@
         <file>res/ground_city.png</file>
         <file>res/pipe_city.png</file>
         <file>res/coin.png</file>
+        <file>res/about/mika.jpg</file>
+        <file>res/about.png</file>
     </qresource>
 </RCC>

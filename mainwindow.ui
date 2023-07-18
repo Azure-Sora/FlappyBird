@@ -362,12 +362,39 @@
      <pixmap resource="res.qrc">:/res/control_panel_new.png</pixmap>
     </property>
    </widget>
+   <widget class="QPushButton" name="aboutButton">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>30</y>
+      <width>106</width>
+      <height>63</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset resource="res.qrc">
+      <normaloff>:/res/about.png</normaloff>:/res/about.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>106</width>
+      <height>63</height>
+     </size>
+    </property>
+    <property name="flat">
+     <bool>true</bool>
+    </property>
+   </widget>
    <zorder>backgroundPic</zorder>
    <zorder>gameTitle</zorder>
    <zorder>btnStartGame</zorder>
    <zorder>label_5</zorder>
    <zorder>widget_6</zorder>
    <zorder>widget_2</zorder>
+   <zorder>aboutButton</zorder>
   </widget>
  </widget>
  <customwidgets>
