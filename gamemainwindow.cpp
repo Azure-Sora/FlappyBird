@@ -77,10 +77,10 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
 //    *fps = 0;
     gameTime = 0;
     QTimer *timer = new QTimer;
-    connect(ui->actionExit, &QAction::triggered, [=](){
+    connect(ui->actionExit, &QAction::triggered, this, [=](){
         this->close();
     });
-    connect(ui->btnStartGame,&QPushButton::clicked,[=](){
+    connect(ui->btnStartGame,&QPushButton::clicked,this, [=](){
         if(gameOver->isVisible())
         {
             willRestart = true;
@@ -97,7 +97,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
         }
 
     });
-    connect(ui->actionStart,&QAction::triggered,[=](){
+    connect(ui->actionStart,&QAction::triggered,this, [=](){
         if(gameOver->isVisible())
         {
             willRestart = true;
@@ -130,12 +130,12 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
             pipeDown->upAndDownMoveTimer->stop();
             showHighestScore();
 
-            crashed(); //用于在2P也能显示出游戏结束，但会导致播放两次die音效，暂时想不到更好的实现方案
+            if(!isServer) crashed(); //用于在2P也能显示出游戏结束
         }
 
     });
 
-    connect(gameTimer, &QTimer::timeout ,[=](){
+    connect(gameTimer, &QTimer::timeout ,this, [=](){
 //        qDebug() << *fps;
 //        (*fps) = 0;
         gameTime++;
@@ -391,7 +391,7 @@ void GameMainWindow::createPipes()
     pipeUp->initPosition(holeWidth,holeCenter);
     pipeDown->initPosition(holeWidth,holeCenter);
     connect(pipeUp, &Pipe::resetMe, this, &GameMainWindow::resetPipes);
-    connect(pipeUp, &Pipe::getScore, [=](){
+    connect(pipeUp, &Pipe::getScore, this, [=](){
         score++;
         scoreChanged();
     });

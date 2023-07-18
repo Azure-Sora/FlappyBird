@@ -8,7 +8,7 @@
 Pipe::Pipe(int y,positions pos,QWidget *parent,bool active) : x(800) , y(y) , position(pos) , myParent(parent), isActive(active)
     , upAndDownMoveTimer(new QTimer), stepMoveTimer(new QTimer), moveTimer(new QTimer)
 {
-    connect(moveTimer,&QTimer::timeout,[=](){
+    connect(moveTimer,&QTimer::timeout,this,[=](){
         move();
     });
 }
@@ -122,7 +122,7 @@ void Pipe::startUpAndDown() //开始上下运动
     //每隔一秒随即出下一秒要动的量
     upAndDownMovement = 0;
     upAndDownMoveTimer->start(1000);
-    connect(upAndDownMoveTimer, &QTimer::timeout, [=](){
+    connect(upAndDownMoveTimer, &QTimer::timeout, this, [=](){
         upAndDownMovement = QRandomGenerator::global()->bounded(-100,100);
 //        qDebug() << QString::number(upAndDownMovement);
     });

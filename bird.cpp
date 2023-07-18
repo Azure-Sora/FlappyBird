@@ -45,7 +45,7 @@ void Bird::flapWing()
     //用flyStatus播放扇翅膀动画
     QTimer *timer = new QTimer;
     timer->start(100);
-    connect(timer,&QTimer::timeout,[=](){
+    connect(timer,&QTimer::timeout,this,[=](){
         if(flyStatus>3||flyStatus<1)
         {
             flyStatus = 3;

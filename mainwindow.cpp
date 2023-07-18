@@ -19,13 +19,13 @@ MainWindow::MainWindow(QWidget *parent)
     difficulty = 0;
     ui->difficultySelector->setCurrentIndex(0);
 
-    connect(ui->difficultySelector,&QComboBox::currentIndexChanged,[=](){
+    connect(ui->difficultySelector,&QComboBox::currentIndexChanged,this,[=](){
         difficulty = ui->difficultySelector->currentIndex();
     });
 
     connect(ui->btnStartServer,&QPushButton::clicked,this,&MainWindow::initServer);
 
-    connect(ui->btnStartGame,&StartButton::clicked,[=](){
+    connect(ui->btnStartGame,&StartButton::clicked,this,[=](){
         startAGame();
     });
     connect(ui->btnConnect,&QPushButton::clicked,this,&MainWindow::initClient);
