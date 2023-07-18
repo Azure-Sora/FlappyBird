@@ -21,6 +21,19 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->difficultySelector,&QComboBox::currentIndexChanged,this,[=](){
         difficulty = ui->difficultySelector->currentIndex();
+        switch (difficulty) {
+        case 0:
+            ui->backgroundPic->setPixmap(QPixmap(":/res/background_day.png"));
+            break;
+        case 1:
+            ui->backgroundPic->setPixmap(QPixmap(":/res/background_night.png"));
+            break;
+        case 2:
+            ui->backgroundPic->setPixmap(QPixmap(":/res/background_city.png"));
+            break;
+        default:
+            break;
+        }
     });
 
     connect(ui->btnStartServer,&QPushButton::clicked,this,&MainWindow::initServer);

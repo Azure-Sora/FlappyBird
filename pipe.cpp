@@ -13,28 +13,6 @@ Pipe::Pipe(int y,positions pos,QWidget *parent,bool active) : x(800) , y(y) , po
     });
 }
 
-void Pipe::initPosition(int holeWidth, int holePosition)
-{
-    this->x=800;
-    switch (this->position) {
-    case Pipe::up: //初始化上面管子位置
-        this->y = 0;
-        this->height = holePosition - holeWidth/2;
-        break;
-    case Pipe::down: //初始化下面管子位置
-        this->y = holePosition + holeWidth/2;
-        this->height = 800 - y;
-        break;
-    default:
-        break;
-    }
-
-    if(isActive && moveTimer->isActive() == false) //如果是主机的管子且没在动，则开始自行移动
-    {
-        moveTimer->start(25);
-    }
-}
-
 void Pipe::move()
 {
     x -= ( 5 * static_cast<GameMainWindow *>(myParent)->difficulty);
@@ -43,12 +21,6 @@ void Pipe::move()
         emit resetMe();
     }
 }
-
-
-//void Pipe::resetMe()
-//{
-//    this->x = 800;
-//}
 
 void Pipe::isCrashed(Bird *bird) //判定碰撞
 {
@@ -97,6 +69,10 @@ void Pipe::reset(int holeWidth, int holePosition)
         break;
     default:
         break;
+    }
+    if(isActive && moveTimer->isActive() == false) //如果是主机的管子且没在动，则开始自行移动
+    {
+        moveTimer->start(25);
     }
 }
 

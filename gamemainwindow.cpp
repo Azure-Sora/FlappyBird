@@ -40,6 +40,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     ,scoreHundred(new QLabel(this))
     ,nums(new QStringList)
     ,coin(new Coin(this,this))
+    ,coldDownTime(0)
 {
     ui->setupUi(this);
     this->setWindowTitle("Flappy Bird");
@@ -131,6 +132,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
             pipeDown->moveTimer->stop();
             pipeDown->stepMoveTimer->stop();
             pipeDown->upAndDownMoveTimer->stop();
+            background->timer->stop();
             showHighestScore();
 
             if(!isServer) crashed(); //用于在2P也能显示出游戏结束
@@ -181,7 +183,12 @@ void GameMainWindow::initGame()
         pipeUp->isActive = true;
         pipeDown->isActive = true;
         coin->isActive = true;
-        createPipes();
+        resetPipes();
+        connect(pipeUp, &Pipe::resetMe, this, &GameMainWindow::resetPipes);
+        connect(pipeUp, &Pipe::getScore, this, [=](){
+            score++;
+            scoreChanged();
+        });
         coin->initCoin();
         connect(bird1,&Bird::flyStatusChanged,bird1,&Bird::flapWing); //让鸟飞的时候扇翅膀
         bird1->birdX=400;
@@ -214,7 +221,12 @@ void GameMainWindow::initGame()
             pipeDown->isActive = true;
             coin->isActive = true;
             coin->initCoin();
-            createPipes();
+            resetPipes();
+            connect(pipeUp, &Pipe::resetMe, this, &GameMainWindow::resetPipes);
+            connect(pipeUp, &Pipe::getScore, this, [=](){
+                score++;
+                scoreChanged();
+            });
             connect(pipeUp,&Pipe::crashed,this,&GameMainWindow::crashed);
             connect(pipeDown,&Pipe::crashed,this,&GameMainWindow::crashed);
             connect(ground,&Ground::hitGround,this,&GameMainWindow::crashed);
@@ -234,6 +246,7 @@ void GameMainWindow::initGame()
 
 void GameMainWindow::updateFrame() //每帧更新画面
 {
+    if(coldDownTime >= 0) coldDownTime--;
     if(gameMode == GameMainWindow::singelplayer)
     {
         birdMove(bird1);
@@ -369,16 +382,19 @@ void GameMainWindow::paintEvent(QPaintEvent *event) //从底层到顶层逐层�
 
 void GameMainWindow::keyPressEvent(QKeyEvent *event)
 {
+    if(coldDownTime > 0) return;
     if(event->key() == Qt::Key_Space)
     {
 //        bird1->fly();
         if(gameMode == GameMainWindow::singelplayer || isServer == true)
         {
+            coldDownTime = 5;
             bird1->fly();
         }
         if(gameMode == GameMainWindow::multiplayer && isServer == false)
         {
             MainWindow *myMain = static_cast<MainWindow *>(mainWindow);
+            coldDownTime = 5;
             myMain->socket->write("fly"); //多人且不是主机的情况下，向主机发送fly请求
         }
     }
@@ -387,15 +403,18 @@ void GameMainWindow::keyPressEvent(QKeyEvent *event)
 
 void GameMainWindow::mousePressEvent(QMouseEvent *event)
 {
+    if(coldDownTime > 0) return;
     if(event->button() == Qt::LeftButton)
     {
         if(gameMode == GameMainWindow::singelplayer || isServer == true)
         {
+            coldDownTime = 5;
             bird1->fly();
         }
         if(gameMode == GameMainWindow::multiplayer && isServer == false)
         {
             MainWindow *myMain = static_cast<MainWindow *>(mainWindow);
+            coldDownTime = 5;
             myMain->socket->write("fly");
         }
     }
@@ -404,20 +423,6 @@ void GameMainWindow::mousePressEvent(QMouseEvent *event)
 void GameMainWindow::closeEvent(QCloseEvent *event)
 {
     emit closed(willRestart); //用于关闭游戏窗口后显示菜单窗口
-}
-
-void GameMainWindow::createPipes()
-{
-    //通过水管中间洞的大小和位置确定两个管子的位置
-    int holeWidth = QRandomGenerator::global()->bounded(150,300);
-    int holeCenter = QRandomGenerator::global()->bounded(200,600);
-    pipeUp->initPosition(holeWidth,holeCenter);
-    pipeDown->initPosition(holeWidth,holeCenter);
-    connect(pipeUp, &Pipe::resetMe, this, &GameMainWindow::resetPipes);
-    connect(pipeUp, &Pipe::getScore, this, [=](){
-        score++;
-        scoreChanged();
-    });
 }
 
 void GameMainWindow::initServer()
@@ -447,11 +452,6 @@ void GameMainWindow::initClient()
         QString bufStr;
         bufStr.prepend(buf);
 //        qDebug() << bufStr;
-//        if(bufStr == "fly")
-//        {
-//            bird2->fly();
-//            return;
-//        }
         //bird1Y-bird2Y-b1flystatus-b2flystatus-pipeUpX-pipeDownX-Score-gameRunning-holePosition
         QStringList data = bufStr.split("~");
         syncWithServer(data);
@@ -617,8 +617,8 @@ void GameMainWindow::updateScoreLabel()
     int ten = (score % 100 - one) / 10;
     int hundred = (score - one - ten * 10) / 100;
     scoreOne->setPixmap(QPixmap((*nums).at(one)));
-    if(ten != 0) scoreTen->setPixmap(QPixmap((*nums).at(ten)));
-    if(hundred != 0) scoreHundred->setPixmap(QPixmap((*nums).at(hundred)));
+    if(score > 9) scoreTen->setPixmap(QPixmap((*nums).at(ten)));
+    if(score > 99) scoreHundred->setPixmap(QPixmap((*nums).at(hundred)));
 }
 
 void GameMainWindow::showHighestScore()

@@ -1,11 +1,10 @@
 #include "background.h"
 #include <QTimer>
 
-Background::Background()
+Background::Background() : timer(new QTimer)
 {
     x=0;
 
-    QTimer *timer = new QTimer;
     timer->start(25);
 
     connect(timer, &QTimer::timeout, this, &Background::move);

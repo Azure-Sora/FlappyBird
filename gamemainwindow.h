@@ -35,7 +35,6 @@ public:
     void keyPressEvent(QKeyEvent * event);
     void mousePressEvent(QMouseEvent *event);
     void closeEvent(QCloseEvent *event);
-    void createPipes();
     void initServer();
     void initClient();
     void birdMove(Bird *bird);
@@ -77,6 +76,7 @@ public:
     QLabel *scoreTen;
     QLabel *scoreHundred;
     QStringList *nums;
+    int coldDownTime;
 
 
 signals:
