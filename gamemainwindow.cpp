@@ -20,6 +20,7 @@
 #include <QSoundEffect>
 #include <QMediaPlayer>
 #include <QAudioOutput>
+#include "coin.h"
 
 GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     QMainWindow(parent)
@@ -38,6 +39,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     ,scoreTen(new QLabel(this))
     ,scoreHundred(new QLabel(this))
     ,nums(new QStringList)
+    ,coin(new Coin(this,this))
 {
     ui->setupUi(this);
     this->setWindowTitle("Flappy Bird");
@@ -122,6 +124,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
             timer->stop();
             gameTimer->stop();
             bkgdMusic->stop();
+            coin->moveTimer->stop();
             pipeUp->moveTimer->stop();
             pipeUp->stepMoveTimer->stop();
             pipeUp->upAndDownMoveTimer->stop();
@@ -168,6 +171,7 @@ void GameMainWindow::initGame()
     score=0;
     pipeUp = new Pipe(0,Pipe::up,this,false);
     pipeDown = new Pipe(0,Pipe::down,this,false);
+    coin = new Coin(this,this,false);
 
     initMusic();
 
@@ -176,7 +180,9 @@ void GameMainWindow::initGame()
         isServer = true;
         pipeUp->isActive = true;
         pipeDown->isActive = true;
+        coin->isActive = true;
         createPipes();
+        coin->initCoin();
         connect(bird1,&Bird::flyStatusChanged,bird1,&Bird::flapWing); //让鸟飞的时候扇翅膀
         bird1->birdX=400;
         bird1->birdY=400;
@@ -184,6 +190,10 @@ void GameMainWindow::initGame()
         connect(pipeUp,&Pipe::crashed,this,&GameMainWindow::crashed); //初始化碰撞检测
         connect(pipeDown,&Pipe::crashed,this,&GameMainWindow::crashed);
         connect(ground,&Ground::hitGround,this,&GameMainWindow::crashed);
+        connect(coin,&Coin::getScore,this,[=](){
+            score++;
+            scoreChanged();
+        });
     }
 
     if(gameMode == GameMainWindow::multiplayer) //多人游戏
@@ -202,10 +212,16 @@ void GameMainWindow::initGame()
             initServer();
             pipeUp->isActive = true;
             pipeDown->isActive = true;
+            coin->isActive = true;
+            coin->initCoin();
             createPipes();
             connect(pipeUp,&Pipe::crashed,this,&GameMainWindow::crashed);
             connect(pipeDown,&Pipe::crashed,this,&GameMainWindow::crashed);
             connect(ground,&Ground::hitGround,this,&GameMainWindow::crashed);
+            connect(coin,&Coin::getScore,this,[=](){
+                score++;
+                scoreChanged();
+            });
         }
         else //2P
         {
@@ -302,6 +318,13 @@ void GameMainWindow::paintEvent(QPaintEvent *event) //从底层到顶层逐层�
     else if(gameScene == GameMainWindow::city)
     {
         groundPainter.drawPixmap(0,0,1600,100,QPixmap(":/res/ground_city.png"));
+    }
+
+    QPainter coinPainter(this);
+    coinPainter.translate(coin->x,coin->y);
+    if(!coin->eaten)
+    {
+        coinPainter.drawPixmap(0,0,12,16,QPixmap(":/res/coin.png"));
     }
 
 
@@ -457,11 +480,13 @@ void GameMainWindow::checkCrash() //每帧检测碰撞
     pipeUp->isCrashed(bird1);
     pipeDown->isCrashed(bird1);
     ground->checkHitGround(bird1);
+    if(!coin->eaten) coin->isTouched(bird1);
     if(gameMode == GameMainWindow::multiplayer)
     {
         pipeUp->isCrashed(bird2);
         pipeDown->isCrashed(bird2);
         ground->checkHitGround(bird2);
+        if(!coin->eaten) coin->isTouched(bird2);
     }
 }
 
@@ -495,7 +520,9 @@ void GameMainWindow::resetPipes() //水管撞到左边边界后重置水管
 
 void GameMainWindow::syncWithServer(QStringList data) //客户机处理主机的同步消息
 {
-    //bird1Y-bird2Y-b1flystatus-b2flystatus-pipeUpX-pipeUpHeight-pipeDownX-pipeDownY-Score-gameRunning-holePosition-difficulty
+    /*bird1Y-bird2Y-b1flystatus-b2flystatus-pipeUpX-pipeUpHeight-pipeDownX
+    -pipeDownY-Score-gameRunning-holePosition-difficulty-coinX-coinY-coinAeten
+    */
     bird1->birdY=data.at(0).toInt();
     bird2->birdY=data.at(1).toInt();
     bird1->flyStatus=data.at(2).toInt();
@@ -511,9 +538,16 @@ void GameMainWindow::syncWithServer(QStringList data) //客户机处理主机的
     }
     gameRunning = (data.at(9).toInt() == 1 ? true : false);
     int holePosition = data.at(10).toInt();
-    difficulty = data.at(11).toInt();
+    if(difficulty != data.at(11).toInt())
+    {
+        difficulty = data.at(11).toInt();
+        difficultyChanged();
+    }
     pipeDown->caculatePosition(holePosition,pipeUp);
     pipeUp->caculatePosition(holePosition,pipeDown);
+    coin->x = data.at(12).toInt();
+    coin->y = data.at(13).toInt();
+    coin->eaten = (data.at(14).toInt() == 1 ? true : false);
 }
 
 void GameMainWindow::syncWithClient() //主机打包消息并向客户机发送
@@ -525,8 +559,10 @@ void GameMainWindow::syncWithClient() //主机打包消息并向客户机发送
          << QString::number(pipeUp->x) << "~" << QString::number(pipeUp->height) << "~"
          << QString::number(pipeDown->x) << "~" << QString::number(pipeDown->y) << "~"
          << QString::number(score) << "~" << (gameRunning == true ? "1" : "0") << "~"
-         << QString::number((pipeDown->y - pipeUp->height)/2 + pipeUp->height) << "~" << QString::number(difficulty);
+         << QString::number((pipeDown->y - pipeUp->height)/2 + pipeUp->height) << "~" << QString::number(difficulty) << "~"
+         << QString::number(coin->x) << "~" << QString::number(coin->y) << "~" << (coin->eaten == true ? "1" : "0");
     QString tmpstr = data.join("");
+    qDebug() << tmpstr;
     QByteArray tmpbytearr = tmpstr.toLocal8Bit();
     myMain->client->write(tmpbytearr);
 }
@@ -621,5 +657,11 @@ void GameMainWindow::showHighestScore()
     connect(this,&GameMainWindow::closed,one,&QLabel::close);
     connect(this,&GameMainWindow::closed,ten,&QLabel::close);
     connect(this,&GameMainWindow::closed,hundred,&QLabel::close);
+}
+
+void GameMainWindow::difficultyChanged()
+{
+    ground->difficulty=difficulty;
+    gameScene = static_cast<GameMainWindow::gameScenes>(difficulty);
 }
 

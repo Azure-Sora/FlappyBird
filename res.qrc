@@ -41,5 +41,6 @@
         <file>res/pipe_up_night.png</file>
         <file>res/ground_city.png</file>
         <file>res/pipe_city.png</file>
+        <file>res/coin.png</file>
     </qresource>
 </RCC>

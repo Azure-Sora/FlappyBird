@@ -15,6 +15,8 @@
 #include "ground.h"
 #include <QSoundEffect>
 
+class Coin;
+
 namespace Ui {
 class GameMainWindow;
 }
@@ -47,6 +49,7 @@ public:
     void feverTime(int times);
     void updateScoreLabel();
     void showHighestScore();
+    void difficultyChanged();
 
     enum playerCount {singelplayer , multiplayer};
     playerCount gameMode;
@@ -60,6 +63,7 @@ public:
     bool gameRunning;
     Pipe *pipeUp;
     Pipe *pipeDown;
+    Coin *coin;
     QLabel *gameOver;
     QWidget *mainWindow;
     int difficulty;
