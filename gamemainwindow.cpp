@@ -128,6 +128,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
             pipeDown->moveTimer->stop();
             pipeDown->stepMoveTimer->stop();
             pipeDown->upAndDownMoveTimer->stop();
+            showHighestScore();
 
             crashed(); //用于在2P也能显示出游戏结束，但会导致播放两次die音效，暂时想不到更好的实现方案
         }
@@ -467,7 +468,6 @@ void GameMainWindow::checkCrash() //每帧检测碰撞
 void GameMainWindow::crashed() //发生碰撞
 {
     gameRunning = false;
-    showHighestScore();
     QSoundEffect *dieSound = new QSoundEffect;
     dieSound->setSource(QUrl::fromLocalFile(":/res/die.wav"));
     dieSound->setLoopCount(1);

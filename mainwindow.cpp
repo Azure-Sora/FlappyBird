@@ -14,12 +14,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-//    btnStart->move(100,100);
-//    btnStart->show();
-
-//    initInterface();
-
-
     this->setWindowTitle("主菜单");
     isMultiplayer = false;
     difficulty = 0;
@@ -50,7 +44,7 @@ void MainWindow::startAGame()
     gameMain->setAttribute(Qt::WA_QuitOnClose);
     connect(gameMain,&GameMainWindow::closed,this,[=](bool restart){
         this->show();
-        if(restart == true) startAGame();
+        if(restart) startAGame();
     });
 //    connect(gameMain,&GameMainWindow::restartGame,this,&MainWindow::startAGame);
     gameMain->show();
