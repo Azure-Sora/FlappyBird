@@ -76,3 +76,5 @@ endif()
 
 target_link_libraries(FlappyBird PRIVATE Qt6::Network)
 target_link_libraries(FlappyBird PRIVATE Qt6::Multimedia)
+
+include_directories(${PROJECT_SOURCE_DIR})

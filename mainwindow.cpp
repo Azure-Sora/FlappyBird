@@ -105,7 +105,5 @@ void MainWindow::initClient()
     {
         ui->connectionStatus->setText("连接失败");
     }
-
-
 }
 

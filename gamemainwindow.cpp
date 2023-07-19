@@ -18,8 +18,6 @@
 #include <QStringList>
 #include "ground.h"
 #include <QSoundEffect>
-#include <QMediaPlayer>
-#include <QAudioOutput>
 #include "coin.h"
 
 GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
@@ -427,6 +425,7 @@ void GameMainWindow::closeEvent(QCloseEvent *event)
 
 void GameMainWindow::initServer()
 {
+//    qDebug() << "initServer";
     MainWindow *myMain = static_cast<MainWindow *>(mainWindow);
     //监听2P消息，接受到fly请求时让2P鸟飞
     connect(myMain->client,&QTcpSocket::readyRead,this,[=](){
@@ -453,8 +452,11 @@ void GameMainWindow::initClient()
         bufStr.prepend(buf);
 //        qDebug() << bufStr;
         //bird1Y-bird2Y-b1flystatus-b2flystatus-pipeUpX-pipeDownX-Score-gameRunning-holePosition
-        QStringList data = bufStr.split("~");
-        syncWithServer(data);
+        if(bufStr != "")
+        {
+            QStringList data = bufStr.split("~");
+            syncWithServer(data);
+        }
     });
 
 
@@ -523,6 +525,7 @@ void GameMainWindow::syncWithServer(QStringList data) //客户机处理主机的
     /*bird1Y-bird2Y-b1flystatus-b2flystatus-pipeUpX-pipeUpHeight-pipeDownX
     -pipeDownY-Score-gameRunning-holePosition-difficulty-coinX-coinY-coinAeten
     */
+//    qDebug() << "syncWithServer";
     bird1->birdY=data.at(0).toInt();
     bird2->birdY=data.at(1).toInt();
     bird1->flyStatus=data.at(2).toInt();
@@ -562,7 +565,7 @@ void GameMainWindow::syncWithClient() //主机打包消息并向客户机发送
          << QString::number((pipeDown->y - pipeUp->height)/2 + pipeUp->height) << "~" << QString::number(difficulty) << "~"
          << QString::number(coin->x) << "~" << QString::number(coin->y) << "~" << (coin->eaten == true ? "1" : "0");
     QString tmpstr = data.join("");
-    qDebug() << tmpstr;
+//    qDebug() << tmpstr;
     QByteArray tmpbytearr = tmpstr.toLocal8Bit();
     myMain->client->write(tmpbytearr);
 }
