@@ -19,6 +19,7 @@
 #include "ground.h"
 #include <QSoundEffect>
 #include "coin.h"
+#include <QIcon>
 
 GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
     QMainWindow(parent)
@@ -42,6 +43,7 @@ GameMainWindow::GameMainWindow(QWidget *parent,QWidget *mainWindow) :
 {
     ui->setupUi(this);
     this->setWindowTitle("Flappy Bird");
+    this->setWindowIcon(QIcon(":/res/icon.ico"));
     ui->btnStartGame->setFocus();
 
     this->setFixedSize(800,800);//初始化游戏结束的字
@@ -451,7 +453,9 @@ void GameMainWindow::initClient()
         QString bufStr;
         bufStr.prepend(buf);
 //        qDebug() << bufStr;
-        //bird1Y-bird2Y-b1flystatus-b2flystatus-pipeUpX-pipeDownX-Score-gameRunning-holePosition
+        /*bird1Y-bird2Y-b1flystatus-b2flystatus-pipeUpX-pipeUpHeight-pipeDownX
+    -pipeDownY-Score-gameRunning-holePosition-difficulty-coinX-coinY-coinAeten
+    */
         if(bufStr != "")
         {
             QStringList data = bufStr.split("~");

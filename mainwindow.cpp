@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     , highestScore(0)
 {
     ui->setupUi(this);
-
+    this->setWindowIcon(QIcon(":/res/icon.ico"));
     this->setWindowTitle("主菜单");
     isMultiplayer = false;
     difficulty = 0;

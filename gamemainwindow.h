@@ -77,6 +77,8 @@ public:
     QLabel *scoreHundred;
     QStringList *nums;
     int coldDownTime;
+    Bird *bird1;
+    Bird *bird2;
 
 
 signals:
@@ -84,8 +86,6 @@ signals:
 
 private:
     Ui::GameMainWindow *ui;
-    Bird *bird1;
-    Bird *bird2;
 };
 
 #endif // GAMEMAINWINDOW_H

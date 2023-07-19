@@ -44,5 +44,6 @@
         <file>res/coin.png</file>
         <file>res/about/mika.jpg</file>
         <file>res/about.png</file>
+        <file>res/icon.ico</file>
     </qresource>
 </RCC>
