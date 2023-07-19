@@ -1,3 +1,4 @@
+
 #include "pipe.h"
 #include <QPainter>
 #include <QTimer>

@@ -249,9 +249,9 @@ void GameMainWindow::updateFrame() //每帧更新画面
     if(coldDownTime >= 0) coldDownTime--;
     if(gameMode == GameMainWindow::singelplayer)
     {
-        birdMove(bird1);
-        repaint();
-        checkCrash();
+        birdMove(bird1); //计算鸟的上下移动和重力加速度
+        repaint(); //重绘
+        checkCrash(); //检测碰撞
         return;
     }
     if(isServer)
@@ -385,7 +385,6 @@ void GameMainWindow::keyPressEvent(QKeyEvent *event)
     if(coldDownTime > 0) return;
     if(event->key() == Qt::Key_Space)
     {
-//        bird1->fly();
         if(gameMode == GameMainWindow::singelplayer || isServer == true)
         {
             coldDownTime = 5;
@@ -445,7 +444,6 @@ void GameMainWindow::initServer()
 
 void GameMainWindow::initClient()
 {
-//    qDebug() << "initclient";
     MainWindow *myMain = static_cast<MainWindow *>(mainWindow);
     //监听主机消息，接收到主机信息时进行处理并同步
     connect(myMain->socket,&QTcpSocket::readyRead,this,[=](){
@@ -462,8 +460,6 @@ void GameMainWindow::initClient()
             syncWithServer(data);
         }
     });
-
-
 }
 
 void GameMainWindow::birdMove(Bird *bird)//鸟每帧的移动
@@ -569,7 +565,6 @@ void GameMainWindow::syncWithClient() //主机打包消息并向客户机发送
          << QString::number((pipeDown->y - pipeUp->height)/2 + pipeUp->height) << "~" << QString::number(difficulty) << "~"
          << QString::number(coin->x) << "~" << QString::number(coin->y) << "~" << (coin->eaten == true ? "1" : "0");
     QString tmpstr = data.join("");
-//    qDebug() << tmpstr;
     QByteArray tmpbytearr = tmpstr.toLocal8Bit();
     myMain->client->write(tmpbytearr);
 }
@@ -599,9 +594,8 @@ void GameMainWindow::initMusic() //初始化背景音乐
     gameTimer->start(1000); //初始化音乐的时候再开始计时，以卡点
 }
 
-void GameMainWindow::feverTime(int times) //进入feverTime，背景切换到夜晚，难度+1，并且开始水管移动
+void GameMainWindow::feverTime(int times) //进入feverTime，背景切换到下一个，难度+1，并且开始水管移动
 {
-//    gameScene = night;
     if(gameMode == GameMainWindow::singelplayer || isServer)
     {
         if(times == 1)

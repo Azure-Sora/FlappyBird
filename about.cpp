@@ -10,6 +10,7 @@ About::About(QWidget *parent) :
     ui->setupUi(this);
 
     setWindowTitle("关于");
+    this->setWindowIcon(QIcon(":/res/icon.ico"));
     connect(ui->pushButton,&QPushButton::clicked,this,[=](){
         QDesktopServices::openUrl(QUrl(QString("https://github.com/Azure-Sora/FlappyBird")));
     });
